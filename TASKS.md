@@ -17,7 +17,7 @@
 ### Catálogo Y Compra
 
 - [x] Crear detalle con variantes de presentación mock.
-- [ ] Implementar búsqueda, categorías, filtros, ordenamiento y paginación.
+- [x] Implementar búsqueda, categorías por ocasión, familias olfativas, filtros por precio/calificación, ordenamiento y paginación mock.
 - [ ] Crear tarjetas de producto con wishlist y carrito.
 - [x] Crear página de detalle de producto.
 - [x] Implementar primera versión del carrito y su contador compartido.
@@ -89,3 +89,7 @@
 - [x] Ajustar visibilidad de unidades de stock y colores de estados de pedidos.
 - [x] Aislar catálogo mock detrás de servicio frontend.
 - [x] Extraer tarjeta de producto reutilizable sin cambiar diseño.
+- [x] Ampliar catálogo mock para probar múltiples páginas.
+- [x] Corregir botón `Filtros` y añadir panel interactivo.
+- [x] Añadir filtros por ocasión: Fresco, Diario, Fiesta y Noche.
+- [x] Añadir filtros por familia olfativa: Fresca, Floral, Cítrica, Amaderada, Almizclada y Ambarada.

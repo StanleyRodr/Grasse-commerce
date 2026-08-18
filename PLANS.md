@@ -84,4 +84,7 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se añadió dashboard administrativo mock con métricas, pedidos, productos, stock y ranking.
 - 2026-08-18: Se creó contrato TypeScript de catálogo y servicio mock para aislar datos de vistas.
 - 2026-08-18: Se extrajo `ProductCard` como componente reutilizable para catálogo.
+- 2026-08-18: Se añadieron ordenamiento y paginación mock al catálogo.
+- 2026-08-18: Se corrigió filtrado y se añadieron filtros interactivos por precio y calificación.
+- 2026-08-18: Se añadieron filtros por ocasión y familia olfativa al catálogo.
 - 2026-08-18: Se mejoró visibilidad de stock y se asignaron colores de estado para pedidos según paleta Grasse.

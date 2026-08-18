@@ -3,6 +3,8 @@ export type Product = {
   name: string
   house: string
   category: string
+  scentFamily: string
+  occasion: string
   price: number
   rating: number
   reviews: number
