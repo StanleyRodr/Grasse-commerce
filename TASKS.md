@@ -10,8 +10,9 @@
 - [x] Crear layout público, navegación, header y footer.
 - [x] Preparar catálogo inicial con datos mock.
 - [x] Configurar Vue Router y separar inicio y detalle de producto en vistas.
-- [ ] Crear componentes reutilizables del catálogo.
-- [ ] Preparar servicios HTTP para reemplazar los datos mock.
+- [x] Crear componente reutilizable `ProductCard`.
+- [x] Crear servicio mock de catálogo con contratos TypeScript.
+- [ ] Completar servicios HTTP para reemplazar los datos mock.
 
 ### Catálogo Y Compra
 
@@ -22,25 +23,25 @@
 - [x] Implementar primera versión del carrito y su contador compartido.
 - [x] Crear vista independiente de carrito con cantidades, eliminación, subtotal y total.
 - [x] Implementar wishlist visual.
-- [ ] Crear checkout visual para usuarios e invitados.
+- [x] Crear checkout visual mock para usuarios e invitados.
 
 ### Cuenta Del Usuario
 
-- [ ] Crear registro, login y cierre de sesión.
-- [ ] Crear recuperación y restablecimiento de contraseña.
+- [x] Crear pantallas mock de registro, login y cierre de sesión.
+- [x] Crear pantallas mock de recuperación y restablecimiento de contraseña.
 - [ ] Crear pantalla de verificación de correo.
-- [ ] Crear perfil y edición de datos personales.
-- [ ] Crear gestión de múltiples domicilios y domicilio predeterminado.
-- [ ] Crear resumen, historial de pedidos y estados.
+- [x] Crear perfil mock y edición de datos personales.
+- [x] Crear gestión mock de múltiples domicilios y domicilio predeterminado.
+- [x] Crear resumen mock, historial de pedidos y estados.
 - [x] Crear resumen, comentarios y formulario mock de reseñas verificadas.
 
 ### Dashboard Administrativo
 
-- [ ] Crear resumen de ventas y pedidos.
-- [ ] Crear gestión y cambio de estados de pedidos.
-- [ ] Crear CRUD de productos y variantes.
-- [ ] Crear visualización de stock por colores y umbrales definidos.
-- [ ] Crear ranking de productos más vendidos.
+- [x] Crear resumen mock de ventas y pedidos.
+- [x] Crear gestión mock y cambio de estados de pedidos.
+- [x] Crear CRUD visual mock de productos y variantes.
+- [x] Crear visualización mock de stock por colores y umbrales definidos.
+- [x] Crear ranking mock de productos más vendidos.
 
 ### Backend E Integraciones
 
@@ -81,3 +82,10 @@
 - [x] Mejorar legibilidad del breadcrumb y datos logísticos del detalle.
 - [x] Mostrar estrellas del detalle según la calificación real.
 - [x] Corregir la carga visual de la sección de reseñas y comentarios.
+- [x] Conectar carrito con checkout y confirmación de pedido mock.
+- [x] Conectar navegación de cuenta con rutas de autenticación mock.
+- [x] Crear área mock de usuario con perfil, domicilios, pedidos, wishlist y reseñas.
+- [x] Crear dashboard administrativo mock.
+- [x] Ajustar visibilidad de unidades de stock y colores de estados de pedidos.
+- [x] Aislar catálogo mock detrás de servicio frontend.
+- [x] Extraer tarjeta de producto reutilizable sin cambiar diseño.

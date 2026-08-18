@@ -1,0 +1,25 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { BarChart3, CircleDollarSign, ClipboardList, Edit3, Plus, Search, TrendingUp, Users } from '@lucide/vue'
+import { RouterLink } from 'vue-router'
+
+const tab = ref('Resumen')
+const tabs = ['Resumen', 'Pedidos', 'Productos']
+const statuses = ['Pendiente', 'En proceso', 'Enviado', 'Entregado', 'Cancelado']
+const orders = ref([
+  { id: 'GR-2026-0018', customer: 'Lucía Martínez', date: 'Hoy, 10:42', total: '$4,250', status: 'Pendiente', items: 'Santal 33 · 50 ml' },
+  { id: 'GR-2026-0012', customer: 'Daniel Ramírez', date: '18 mayo 2026', total: '$3,980', status: 'Enviado', items: 'Another 13 · 50 ml' },
+  { id: 'GR-2026-0007', customer: 'Sofía Morales', date: '02 abril 2026', total: '$3,120', status: 'Entregado', items: 'Gris Charnel · 50 ml' },
+])
+const products = [
+  { name: 'Santal 33', house: 'Le Labo', stock: 68, sold: 128, price: '$4,250' },
+  { name: 'Another 13', house: 'Le Labo', stock: 42, sold: 94, price: '$3,980' },
+  { name: 'Gris Charnel', house: 'BDK Parfums', stock: 18, sold: 76, price: '$3,120' },
+  { name: 'Bal d’Afrique', house: 'Byredo', stock: 55, sold: 211, price: '$4,890' },
+]
+const stockState = (stock: number) => stock > 50 ? 'Alto' : stock > 25 ? 'Medio' : 'Bajo'
+</script>
+
+<template>
+  <div class="admin-page"><header class="admin-header"><RouterLink to="/" class="admin-brand">grasse<span>.</span><small>ADMIN</small></RouterLink><nav><button v-for="item in tabs" :key="item" :class="{ active: tab === item }" @click="tab = item">{{ item }}</button></nav><div class="admin-user"><span>LM</span> Lucía Martínez</div></header><main class="admin-content"><div class="admin-heading"><div><p class="eyebrow">Panel de control</p><h1>{{ tab }}</h1></div><span class="admin-date">18 AGO 2026 · 10:42</span></div><template v-if="tab === 'Resumen'"><div class="admin-stats"><div><CircleDollarSign :size="18" /><span>Ventas totales</span><strong>$486,250 <small>MXN</small></strong><em><TrendingUp :size="13" /> +12.8% este mes</em></div><div><ClipboardList :size="18" /><span>Pedidos totales</span><strong>128</strong><em><TrendingUp :size="13" /> +8.4% este mes</em></div><div><Users :size="18" /><span>Clientes activos</span><strong>342</strong><em><TrendingUp :size="13" /> +16.2% este mes</em></div><div><BarChart3 :size="18" /><span>Ticket promedio</span><strong>$3,798 <small>MXN</small></strong><em>Últimos 30 días</em></div></div><div class="admin-columns"><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Rendimiento</p><h2>Ventas semanales</h2></div><span>Últimos 7 días</span></div><div class="sales-chart"><div v-for="(height, index) in [38, 52, 44, 73, 61, 88, 68]" :key="index" class="chart-column"><i :style="{ height: `${height}%` }"></i><small>{{ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][index] }}</small></div></div></section><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Ranking</p><h2>Más vendidos</h2></div><TrendingUp :size="17" /></div><div class="ranking-row" v-for="(product, index) in products" :key="product.name"><b>0{{ index + 1 }}</b><div><strong>{{ product.name }}</strong><span>{{ product.house }}</span></div><em>{{ product.sold }} vendidos</em></div></section></div></template><template v-else-if="tab === 'Pedidos'"><section class="admin-card admin-table-card"><div class="admin-card-heading"><div><p class="eyebrow">Operación</p><h2>Pedidos recientes</h2></div><label class="admin-search"><Search :size="15" /><input placeholder="Buscar pedido..." /></label></div><div class="admin-order-table"><div class="table-head"><span>Pedido</span><span>Cliente</span><span>Fecha</span><span>Total</span><span>Estado</span></div><div v-for="order in orders" :key="order.id" class="table-row"><div><strong>{{ order.id }}</strong><small>{{ order.items }}</small></div><span>{{ order.customer }}</span><span>{{ order.date }}</span><b>{{ order.total }} MXN</b><select v-model="order.status" :class="order.status.toLowerCase().replace(' ', '-')"><option v-for="status in statuses" :key="status">{{ status }}</option></select></div></div></section></template><template v-else><section class="admin-card admin-table-card"><div class="admin-card-heading"><div><p class="eyebrow">Inventario</p><h2>Catálogo de productos</h2></div><button class="admin-add"><Plus :size="15" /> Nuevo producto</button></div><div class="admin-order-table"><div class="table-head product-head"><span>Producto</span><span>Precio</span><span>Stock</span><span>Vendidos</span><span>Acciones</span></div><div v-for="product in products" :key="product.name" class="table-row product-row"><div><strong>{{ product.name }}</strong><small>{{ product.house }}</small></div><b>{{ product.price }} MXN</b><span class="stock-indicator" :class="stockState(product.stock).toLowerCase()"><i></i>{{ product.stock }} uds. · {{ stockState(product.stock) }}</span><span>{{ product.sold }}</span><button class="edit-product"><Edit3 :size="15" /> Editar</button></div></div></section></template></main></div>
+</template>

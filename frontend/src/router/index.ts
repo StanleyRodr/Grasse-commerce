@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ProductView from '../views/ProductView.vue'
 import CartView from '../views/CartView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
+import AuthView from '../views/AuthView.vue'
+import AccountView from '../views/AccountView.vue'
+import AdminView from '../views/AdminView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -10,6 +14,13 @@ export const router = createRouter({
     { path: '/catalogo', name: 'catalog', component: HomeView },
     { path: '/producto/:id', name: 'product', component: ProductView },
     { path: '/carrito', name: 'cart', component: CartView },
+    { path: '/checkout', name: 'checkout', component: CheckoutView },
+    { path: '/login', name: 'login', component: AuthView },
+    { path: '/registro', name: 'register', component: AuthView },
+    { path: '/recuperar-contrasena', name: 'forgot-password', component: AuthView },
+    { path: '/restablecer-contrasena', name: 'reset-password', component: AuthView },
+    { path: '/cuenta', name: 'account', component: AccountView },
+    { path: '/admin', name: 'admin', component: AdminView },
   ],
   scrollBehavior: () => ({ top: 0 }),
 })
