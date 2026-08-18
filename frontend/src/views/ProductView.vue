@@ -1,0 +1,67 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { ArrowLeft, Check, ChevronDown, Heart, Minus, Plus, ShoppingBag, Star } from '@lucide/vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useCartStore } from '../stores/cart'
+
+const route = useRoute()
+const router = useRouter()
+const cart = useCartStore()
+const liked = ref(false)
+const added = ref(false)
+const quantity = ref(1)
+const selectedSize = ref('50 ml')
+const showReviewForm = ref(false)
+const reviewSubmitted = ref(false)
+const reviewRating = ref(0)
+const reviewText = ref('')
+
+const detailProducts = {
+  1: { name: 'Santal 33', house: 'Le Labo', category: 'Madera', description: 'Una composición que habla de madera, fuego y libertad. Un clásico moderno con carácter inconfundible.', price: 4250, rating: 4.9, reviewCount: 128, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1000&q=85', notes: ['Cardamomo', 'Iris', 'Madera de cedro'] },
+  2: { name: 'Another 13', house: 'Le Labo', category: 'Amaderada', description: 'Una piel limpia y magnética, con ambreta, jazmín y musgo que se funden de forma casi imperceptible.', price: 3980, rating: 4.8, reviewCount: 94, image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=85', notes: ['Ambreta', 'Jazmín', 'Musgo'] },
+  3: { name: 'Gris Charnel', house: 'BDK Parfums', category: 'Especiada', description: 'Una fragancia voluptuosa y adictiva donde el higo, el té negro y el sándalo se encuentran en una composición cremosa.', price: 3120, rating: 4.7, reviewCount: 76, image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=1000&q=85', notes: ['Higo', 'Té negro', 'Sándalo'] },
+  4: { name: 'Bal d’Afrique', house: 'Byredo', category: 'Floral', description: 'Una celebración luminosa de París y África, con neroli, cedro y vetiver en equilibrio.', price: 4890, rating: 4.9, reviewCount: 211, image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=1000&q=85', notes: ['Neroli', 'Jazmín', 'Vetiver'] },
+} as const
+const product = computed(() => ({ id: Number(route.params.id) in detailProducts ? Number(route.params.id) : 1, ...detailProducts[Number(route.params.id) as keyof typeof detailProducts] ?? detailProducts[1] }))
+
+const sizes = [
+  { label: '30 ml', price: 2780 },
+  { label: '50 ml', price: product.value.price },
+  { label: '100 ml', price: product.value.price + 1450 },
+]
+const currentPrice = computed(() => sizes.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
+const reviews = [
+  { name: 'Sofía M.', date: '12 mayo 2026', rating: 5, text: 'Tiene una presencia preciosa y muy elegante. La duración en piel superó mis expectativas.', verified: true },
+  { name: 'Daniel R.', date: '28 abril 2026', rating: 5, text: 'El envío llegó rápido y la presentación es impecable. Definitivamente se volvió mi perfume diario.', verified: true },
+  { name: 'Mariana C.', date: '04 abril 2026', rating: 4, text: 'Muy buena estela, aunque en mi piel se percibe un poco más suave después de unas horas.', verified: true },
+]
+
+const addToCart = () => {
+  for (let index = 0; index < quantity.value; index += 1) cart.add({ id: product.value.id, name: `${product.value.name} · ${selectedSize.value}`, house: product.value.house, price: currentPrice.value, image: product.value.image })
+  added.value = true
+  window.setTimeout(() => { added.value = false }, 1800)
+}
+const submitReview = () => {
+  if (!reviewRating.value || !reviewText.value.trim()) return
+  reviewSubmitted.value = true
+  showReviewForm.value = false
+}
+const starState = (star: number, rating: number) => {
+  if (rating >= star) return 'is-filled'
+  if (rating >= star - 0.5) return 'is-partial'
+  return ''
+}
+</script>
+
+<template>
+  <div class="product-page">
+    <header class="product-page-header"><button class="back-link" @click="router.back()"><ArrowLeft :size="16" /> Volver a la colección</button><RouterLink class="wordmark" to="/">grasse<span>.</span></RouterLink><RouterLink to="/carrito" class="detail-meta">CARRITO ({{ cart.count }})</RouterLink></header>
+    <main>
+      <section class="product-detail"><div class="detail-image"><img :src="product.image" :alt="product.name" /><span class="detail-image-label">GRASSE / {{ product.category.toUpperCase() }}</span></div><div class="detail-copy"><div class="detail-breadcrumb">Inicio <span>/</span> Perfumes <span>/</span> {{ product.name }}</div><p class="eyebrow">{{ product.house }}</p><h1>{{ product.name }}</h1><div class="detail-rating"><span class="star-row" :aria-label="`${product.rating} de 5 estrellas`"><span v-for="star in 5" :key="star" class="rating-star" :class="starState(star, product.rating)">★</span></span> <strong>{{ product.rating }}</strong> <span>({{ product.reviewCount }} reseñas)</span></div><p class="detail-description">{{ product.description }}</p><div class="notes-row"><div><p class="field-label">NOTAS PRINCIPALES</p><div class="notes-list"><span v-for="note in product.notes" :key="note">{{ note }}</span></div></div></div><div class="detail-divider"></div><div class="size-row"><div><p class="field-label">PRESENTACIÓN</p><div class="size-options"><button v-for="size in sizes" :key="size.label" :class="{ selected: selectedSize === size.label }" @click="selectedSize = size.label">{{ size.label }}</button></div></div><p class="detail-price">${{ currentPrice.toLocaleString('es-MX') }} <small>MXN</small></p></div><div class="purchase-row"><div class="quantity-control"><button aria-label="Reducir cantidad" :disabled="quantity === 1" @click="quantity -= 1"><Minus :size="14" /></button><span>{{ quantity }}</span><button aria-label="Aumentar cantidad" @click="quantity += 1"><Plus :size="14" /></button></div><button class="primary-button detail-add-button" :class="{ 'is-added': added }" @click="addToCart">{{ added ? 'Agregado al carrito' : 'Agregar al carrito' }} <Check v-if="added" :size="17" /><ShoppingBag v-else :size="17" /></button><button class="detail-heart" :class="{ liked }" aria-label="Agregar a favoritos" @click="liked = !liked"><Heart :size="20" :fill="liked ? 'currentColor' : 'none'" /></button></div><div class="detail-perks"><span><Check :size="14" /> En stock · 18 disponibles</span><span><Check :size="14" /> Envío gratis desde $1,500</span><span><Check :size="14" /> Devoluciones en 30 días</span></div></div></section>
+
+      <section class="reviews-section"><div class="reviews-heading"><div><p class="eyebrow">La comunidad Grasse</p><h2>Lo que dicen de <em>{{ product.name }}</em></h2></div><button class="review-cta" @click="showReviewForm = !showReviewForm">{{ showReviewForm ? 'Cerrar formulario' : 'Escribir una reseña' }} <ArrowLeft v-if="showReviewForm" :size="15" /><Plus v-else :size="15" /></button></div><div class="reviews-layout"><div class="rating-summary"><div class="rating-number">{{ product.rating }} <Star :size="22" fill="currentColor" /></div><p>Basado en {{ product.reviewCount }} reseñas</p><div v-for="(percentage, index) in [88, 7, 3, 1, 1]" :key="index" class="rating-bar"><span>{{ 5 - index }}</span><Star :size="11" fill="currentColor" /><div><i :style="{ width: `${percentage}%` }"></i></div><small>{{ percentage }}%</small></div></div><div class="review-list"><div v-if="showReviewForm" class="review-form"><div v-if="reviewSubmitted" class="review-success"><Check :size="16" /> Tu reseña se ha guardado para revisión.</div><template v-else><p class="field-label">TU EXPERIENCIA</p><div class="input-stars"><button v-for="star in 5" :key="star" :aria-label="`${star} estrellas`" @click="reviewRating = star"><Star :size="20" :fill="star <= reviewRating ? 'currentColor' : 'none'" /></button></div><textarea v-model="reviewText" placeholder="Cuéntanos qué te pareció este perfume..."></textarea><button class="primary-button" :disabled="!reviewRating || !reviewText.trim()" @click="submitReview">Publicar reseña <ArrowRight :size="16" /></button></template></div><article v-for="review in reviews" :key="review.name" class="review-item"><div class="review-top"><div><strong>{{ review.name }}</strong><span v-if="review.verified" class="verified"><Check :size="11" /> Compra verificada</span></div><time>{{ review.date }}</time></div><div class="review-stars"><Star v-for="star in 5" :key="star" :size="13" :fill="star <= review.rating ? 'currentColor' : 'none'" /></div><p>{{ review.text }}</p></article><button class="load-reviews">Cargar más reseñas <ChevronDown :size="15" /></button></div></div></section>
+
+      <section class="related-section"><div class="section-heading"><div><p class="eyebrow">También te puede gustar</p><h2>Descubre algo nuevo</h2></div><RouterLink class="text-link" to="/catalogo">Ver colección <ArrowLeft :size="15" /></RouterLink></div><div class="related-grid"><RouterLink v-for="item in [{ id: 2, name: 'Another 13', house: 'Le Labo', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=85' }, { id: 4, name: 'Bal d’Afrique', house: 'Byredo', image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=900&q=85' }]" :key="item.id" :to="`/producto/${item.id}`" class="related-card"><img :src="item.image" :alt="item.name" /><p>{{ item.house }}</p><h3>{{ item.name }}</h3></RouterLink></div></section>
+    </main>
+  </div>
+</template>
