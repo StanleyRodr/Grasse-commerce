@@ -87,4 +87,11 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se añadieron ordenamiento y paginación mock al catálogo.
 - 2026-08-18: Se corrigió filtrado y se añadieron filtros interactivos por precio y calificación.
 - 2026-08-18: Se añadieron filtros por ocasión y familia olfativa al catálogo.
+- 2026-08-18: Se creó backend Laravel 12 con Sanctum, configuración PostgreSQL y endpoint `/api/health`.
 - 2026-08-18: Se mejoró visibilidad de stock y se asignaron colores de estado para pedidos según paleta Grasse.
+- 2026-08-18: Se definió el contrato JSON del catálogo y se añadieron endpoints paginados de productos.
+- 2026-08-18: Se añadieron migración, modelo, factory, seeder y pruebas del catálogo Laravel.
+- 2026-08-18: Se conectaron el catálogo y el detalle de producto del frontend con la API Laravel mediante servicios HTTP.
+- 2026-08-18: Se implementaron registro, login, usuario actual y logout con tokens de Laravel Sanctum.
+- 2026-08-18: Se añadieron verificación de correo, recuperación y restablecimiento de contraseña con notificaciones Laravel.
+- 2026-08-18: Se añadió rol administrativo, middleware de autorización y rate limiting para autenticación.

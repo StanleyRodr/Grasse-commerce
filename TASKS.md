@@ -45,11 +45,13 @@
 
 ### Backend E Integraciones
 
-- [ ] Definir contratos y respuestas de la API Laravel.
+- [x] Definir contratos y respuestas de la API Laravel.
 - [ ] Crear proyecto Laravel API y configurar PostgreSQL.
-- [ ] Implementar autenticación con Sanctum y autorización administrativa.
-- [ ] Implementar recuperación de contraseña y envío de correos.
-- [ ] Implementar modelos, migraciones y endpoints del catálogo.
+- [x] Crear proyecto Laravel API y añadir Laravel Sanctum.
+- [ ] Configurar PostgreSQL y ejecutar migraciones.
+- [x] Implementar autenticación con Sanctum y autorización administrativa.
+- [x] Implementar recuperación de contraseña y envío de correos.
+- [x] Implementar modelos, migraciones y endpoints del catálogo.
 - [ ] Implementar carrito, wishlist, domicilios, pedidos y reseñas.
 - [ ] Integrar Stripe Checkout en modo prueba.
 - [ ] Implementar y validar webhooks de Stripe.
@@ -89,7 +91,15 @@
 - [x] Ajustar visibilidad de unidades de stock y colores de estados de pedidos.
 - [x] Aislar catálogo mock detrás de servicio frontend.
 - [x] Extraer tarjeta de producto reutilizable sin cambiar diseño.
+- [x] Crear backend Laravel 12 en `backend/` y endpoint de salud.
 - [x] Ampliar catálogo mock para probar múltiples páginas.
 - [x] Corregir botón `Filtros` y añadir panel interactivo.
 - [x] Añadir filtros por ocasión: Fresco, Diario, Fiesta y Noche.
 - [x] Añadir filtros por familia olfativa: Fresca, Floral, Cítrica, Amaderada, Almizclada y Ambarada.
+- [x] Definir contrato JSON y endpoints paginados del catálogo Laravel.
+- [x] Añadir migración, modelo, factory y seeder inicial de productos.
+- [x] Añadir pruebas de filtros, ordenamiento, paginación y detalle de producto.
+- [x] Conectar catálogo y detalle de producto del frontend con la API Laravel.
+- [x] Implementar registro, login, usuario actual y logout con Sanctum.
+- [x] Implementar verificación de correo y restablecimiento de contraseña en Laravel.
+- [x] Añadir rate limiting a los endpoints sensibles de autenticación.

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { ArrowLeft, Check, ChevronRight, Heart, MapPin, Package, Pencil, Star } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
+import { logout } from '../services/authService'
+import { useRouter } from 'vue-router'
 
 const activeSection = ref('Resumen')
 const sections = ['Resumen', 'Perfil', 'Domicilios', 'Pedidos', 'Wishlist', 'Reseñas']
@@ -14,6 +16,17 @@ const wishlist = [
   { name: 'Another 13', house: 'Le Labo', price: '$3,980 MXN', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=500&q=85' },
   { name: 'Bal d’Afrique', house: 'Byredo', price: '$4,890 MXN', image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=500&q=85' },
 ]
+const router = useRouter()
+const handleLogout = async () => {
+  await logout()
+  await router.push({ name: 'login' })
+}
+let logoutButton: HTMLButtonElement | null = null
+onMounted(() => {
+  logoutButton = document.querySelector<HTMLButtonElement>('.logout-button')
+  logoutButton?.addEventListener('click', handleLogout)
+})
+onUnmounted(() => logoutButton?.removeEventListener('click', handleLogout))
 </script>
 
 <template>

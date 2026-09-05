@@ -6,6 +6,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import AuthView from '../views/AuthView.vue'
 import AccountView from '../views/AccountView.vue'
 import AdminView from '../views/AdminView.vue'
+import { getAuthToken, getAuthUser } from '../services/authService'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -20,7 +21,12 @@ export const router = createRouter({
     { path: '/recuperar-contrasena', name: 'forgot-password', component: AuthView },
     { path: '/restablecer-contrasena', name: 'reset-password', component: AuthView },
     { path: '/cuenta', name: 'account', component: AccountView },
-    { path: '/admin', name: 'admin', component: AdminView },
+    { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
   ],
   scrollBehavior: () => ({ top: 0 }),
+})
+
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth && !getAuthToken()) return { name: 'login' }
+  if (to.meta.requiresAdmin && getAuthUser()?.role !== 'admin') return { name: 'home' }
 })

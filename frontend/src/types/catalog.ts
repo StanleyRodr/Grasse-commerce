@@ -8,8 +8,11 @@ export type Product = {
   price: number
   rating: number
   reviews: number
+  reviewCount?: number
   image: string
   badge?: string
+  description?: string
+  notes?: string[]
 }
 
 export type ProductListResponse = {

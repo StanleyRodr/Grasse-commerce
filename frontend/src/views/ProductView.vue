@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ArrowLeft, Check, ChevronDown, Heart, Minus, Plus, ShoppingBag, Star } from '@lucide/vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
+import { getProductById } from '../services/catalogService'
+import type { Product } from '../types/catalog'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,25 +18,31 @@ const reviewSubmitted = ref(false)
 const reviewRating = ref(0)
 const reviewText = ref('')
 
-const detailProducts = {
-  1: { name: 'Santal 33', house: 'Le Labo', category: 'Madera', description: 'Una composición que habla de madera, fuego y libertad. Un clásico moderno con carácter inconfundible.', price: 4250, rating: 4.9, reviewCount: 128, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1000&q=85', notes: ['Cardamomo', 'Iris', 'Madera de cedro'] },
-  2: { name: 'Another 13', house: 'Le Labo', category: 'Amaderada', description: 'Una piel limpia y magnética, con ambreta, jazmín y musgo que se funden de forma casi imperceptible.', price: 3980, rating: 4.8, reviewCount: 94, image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=85', notes: ['Ambreta', 'Jazmín', 'Musgo'] },
-  3: { name: 'Gris Charnel', house: 'BDK Parfums', category: 'Especiada', description: 'Una fragancia voluptuosa y adictiva donde el higo, el té negro y el sándalo se encuentran en una composición cremosa.', price: 3120, rating: 4.7, reviewCount: 76, image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=1000&q=85', notes: ['Higo', 'Té negro', 'Sándalo'] },
-  4: { name: 'Bal d’Afrique', house: 'Byredo', category: 'Floral', description: 'Una celebración luminosa de París y África, con neroli, cedro y vetiver en equilibrio.', price: 4890, rating: 4.9, reviewCount: 211, image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=1000&q=85', notes: ['Neroli', 'Jazmín', 'Vetiver'] },
-} as const
-const product = computed(() => ({ id: Number(route.params.id) in detailProducts ? Number(route.params.id) : 1, ...detailProducts[Number(route.params.id) as keyof typeof detailProducts] ?? detailProducts[1] }))
+const product = ref<Product>({
+  id: Number(route.params.id), name: 'Cargando...', house: '', category: '', scentFamily: '', occasion: '',
+  price: 0, rating: 0, reviews: 0, reviewCount: 0, image: '', description: '', notes: [],
+})
+const loadError = ref('')
 
-const sizes = [
-  { label: '30 ml', price: 2780 },
+const sizes = computed(() => [
+  { label: '30 ml', price: Math.max(0, product.value.price - 1470) },
   { label: '50 ml', price: product.value.price },
   { label: '100 ml', price: product.value.price + 1450 },
-]
-const currentPrice = computed(() => sizes.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
+])
+const currentPrice = computed(() => sizes.value.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
 const reviews = [
   { name: 'Sofía M.', date: '12 mayo 2026', rating: 5, text: 'Tiene una presencia preciosa y muy elegante. La duración en piel superó mis expectativas.', verified: true },
   { name: 'Daniel R.', date: '28 abril 2026', rating: 5, text: 'El envío llegó rápido y la presentación es impecable. Definitivamente se volvió mi perfume diario.', verified: true },
   { name: 'Mariana C.', date: '04 abril 2026', rating: 4, text: 'Muy buena estela, aunque en mi piel se percibe un poco más suave después de unas horas.', verified: true },
 ]
+
+onMounted(async () => {
+  try {
+    product.value = (await getProductById(Number(route.params.id))).data
+  } catch {
+    loadError.value = 'No pudimos cargar este producto.'
+  }
+})
 
 const addToCart = () => {
   for (let index = 0; index < quantity.value; index += 1) cart.add({ id: product.value.id, name: `${product.value.name} · ${selectedSize.value}`, house: product.value.house, price: currentPrice.value, image: product.value.image })

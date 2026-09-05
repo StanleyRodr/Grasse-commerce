@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+ import { computed, onMounted, ref, watch } from 'vue'
 import { ArrowRight, ChevronDown, Menu, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
@@ -7,7 +7,9 @@ import { useCartStore } from '../stores/cart'
 import { getProducts } from '../services/catalogService'
 import type { Product } from '../types/catalog'
 
-const products: Product[] = getProducts().data
+ const products = ref<Product[]>([])
+ const isLoading = ref(true)
+ const loadError = ref('')
 const categories = ['Todos', 'Fresco', 'Diario', 'Fiesta', 'Noche']
 const activeCategory = ref('Todos')
 const searchQuery = ref('')
@@ -24,7 +26,7 @@ const cart = useCartStore()
 const addingProductId = ref<number | null>(null)
 const toastMessage = ref('')
 const cartPulse = ref(false)
-const filteredProducts = computed(() => products.filter((product) => {
+ const filteredProducts = computed(() => products.value.filter((product) => {
   const categoryMatch = activeCategory.value === 'Todos' || product.occasion === activeCategory.value
   const scentMatch = selectedScent.value === 'Todos' || product.scentFamily === selectedScent.value
   const query = searchQuery.value.toLowerCase().trim()
@@ -37,7 +39,21 @@ watch([activeCategory, searchQuery, sortBy, selectedScent, minRating, maxPrice],
 const clearFilters = () => { activeCategory.value = 'Todos'; selectedScent.value = 'Todos'; minRating.value = 0; maxPrice.value = 6000 }
 const toggleLike = (id: number) => { likedProducts.value = likedProducts.value.includes(id) ? likedProducts.value.filter((item) => item !== id) : [...likedProducts.value, id] }
 const focusSearch = () => { document.querySelector<HTMLInputElement>('.search-input')?.focus() }
-const addToCart = (product: Product) => { cart.add(product); addingProductId.value = product.id; cartPulse.value = true; toastMessage.value = `${product.name} se añadió al carrito`; window.setTimeout(() => { addingProductId.value = null }, 1200); window.setTimeout(() => { cartPulse.value = false }, 650); window.setTimeout(() => { toastMessage.value = '' }, 2600) }
+ const addToCart = (product: Product) => { cart.add(product); addingProductId.value = product.id; cartPulse.value = true; toastMessage.value = `${product.name} se añadió al carrito`; window.setTimeout(() => { addingProductId.value = null }, 1200); window.setTimeout(() => { cartPulse.value = false }, 650); window.setTimeout(() => { toastMessage.value = '' }, 2600) }
+ const loadCatalog = async () => {
+   isLoading.value = true
+   loadError.value = ''
+
+   try {
+     const response = await getProducts({ per_page: 100 })
+     products.value = response.data
+   } catch {
+     loadError.value = 'No pudimos cargar la colección. Intenta de nuevo.'
+   } finally {
+     isLoading.value = false
+   }
+ }
+ onMounted(loadCatalog)
 </script>
 
 <template>
