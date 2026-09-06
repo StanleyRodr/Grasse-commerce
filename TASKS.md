@@ -118,3 +118,6 @@
 - [x] Conectar la wishlist de la cuenta con el servicio persistido.
 - [x] Validar stock y descontarlo al crear pedidos.
 - [x] Conectar edición de perfil y reinicio de verificación al cambiar correo.
+- [x] Conectar historial de reseñas de cuenta con la API.
+- [x] Reemplazar productos relacionados hardcodeados por catálogo API.
+- [x] Probar webhook Stripe firmado e inválido para pedido pendiente.

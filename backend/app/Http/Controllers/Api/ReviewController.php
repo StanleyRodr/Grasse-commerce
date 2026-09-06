@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+    public function mine(Request $request): JsonResponse
+    {
+        return response()->json(['data' => $request->user()->reviews()->with('product:id,name,house,image')->latest()->get()]);
+    }
+
     public function index(Product $product): JsonResponse
     {
         return response()->json(['data' => Review::with('user:id,name')->where('product_id', $product->id)->latest()->paginate(10)]);

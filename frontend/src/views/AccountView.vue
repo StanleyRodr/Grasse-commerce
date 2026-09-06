@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard.vue'
 import { getWishlist, removeFromWishlist } from '../services/wishlistService'
 import { useCartStore } from '../stores/cart'
 import type { Product } from '../types/catalog'
+import { getMyReviews } from '../services/reviewService'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -17,6 +18,7 @@ const sections = ['Resumen', 'Perfil', 'Domicilios', 'Pedidos', 'Wishlist', 'Res
 const addresses = ref<Address[]>([])
 const orders = ref<Array<{ id: string; date: string; status: string; total: string; items: string }>>([])
 const wishlist = ref<Product[]>([])
+const reviews = ref<Array<{ id: number; rating: number; comment: string; verified: boolean; date: string; product: { id: number; name: string; house: string; image: string } }>>([])
 const showAddressForm = ref(false)
 const savingAddress = ref(false)
 const addressError = ref('')
@@ -45,6 +47,9 @@ const removeWishlistItem = async (id: number) => {
   await removeFromWishlist(id)
   wishlist.value = wishlist.value.filter((product) => product.id !== id)
 }
+const loadReviews = async () => {
+  try { reviews.value = (await getMyReviews()).data.map((review) => ({ ...review, verified: review.verified_purchase, date: new Date(review.created_at).toLocaleDateString('es-MX') })) } catch { reviews.value = [] }
+}
 const saveAddress = async () => {
   addressError.value = ''
   savingAddress.value = true
@@ -70,7 +75,7 @@ const saveProfile = async () => {
   finally { savingProfile.value = false }
 }
 const handleLogout = async () => { await logout(); clearAuthToken(); await router.push({ name: 'login' }) }
-onMounted(() => { void loadAddresses(); void loadOrders(); void loadWishlist() })
+onMounted(() => { void loadAddresses(); void loadOrders(); void loadWishlist(); void loadReviews() })
 </script>
 
 <template>
@@ -79,11 +84,12 @@ onMounted(() => { void loadAddresses(); void loadOrders(); void loadWishlist() }
     <main class="account-layout">
       <aside class="account-sidebar"><div class="account-avatar">{{ user?.name?.slice(0, 2).toUpperCase() ?? 'GR' }}</div><p class="account-greeting">Hola, <strong>{{ user?.name ?? 'Cliente' }}</strong></p><p class="account-email">{{ user?.email ?? '' }}</p><nav><button v-for="section in sections" :key="section" :class="{ active: activeSection === section }" @click="activeSection = section">{{ section }} <ChevronRight :size="14" /></button></nav><button class="logout-button" @click="handleLogout">Cerrar sesión</button></aside>
       <section class="account-main"><div class="account-main-heading"><div><p class="eyebrow">Mi espacio</p><h1>{{ activeSection }}</h1></div><span class="account-date">GRASSE / CUENTA</span></div>
-        <template v-if="activeSection === 'Resumen'"><div class="account-stats"><div><Package :size="18" /><strong>{{ orders.length }}</strong><span>Pedidos realizados</span></div><div><MapPin :size="18" /><strong>{{ addresses.length }}</strong><span>Domicilios guardados</span></div><div><Heart :size="18" /><strong>--</strong><span>Favoritos guardados</span></div></div><div class="account-block"><div class="block-heading"><div><p class="eyebrow">Actividad reciente</p><h2>Últimos pedidos</h2></div><button @click="activeSection = 'Pedidos'">Ver todos <ChevronRight :size="14" /></button></div><p v-if="!orders.length">Aún no tienes pedidos registrados.</p><div class="order-row" v-for="order in orders.slice(0, 3)" :key="order.id"><div class="order-icon"><Package :size="17" /></div><div class="order-info"><strong>{{ order.id }}</strong><span>{{ order.items }} · {{ order.date }}</span></div><span class="order-status">{{ order.status }}</span><b>{{ order.total }}</b></div></div></template>
+         <template v-if="activeSection === 'Resumen'"><div class="account-stats"><div><Package :size="18" /><strong>{{ orders.length }}</strong><span>Pedidos realizados</span></div><div><MapPin :size="18" /><strong>{{ addresses.length }}</strong><span>Domicilios guardados</span></div><div><Heart :size="18" /><strong>{{ wishlist.length }}</strong><span>Favoritos guardados</span></div></div><div class="account-block"><div class="block-heading"><div><p class="eyebrow">Actividad reciente</p><h2>Últimos pedidos</h2></div><button @click="activeSection = 'Pedidos'">Ver todos <ChevronRight :size="14" /></button></div><p v-if="!orders.length">Aún no tienes pedidos registrados.</p><div class="order-row" v-for="order in orders.slice(0, 3)" :key="order.id"><div class="order-icon"><Package :size="17" /></div><div class="order-info"><strong>{{ order.id }}</strong><span>{{ order.items }} · {{ order.date }}</span></div><span class="order-status">{{ order.status }}</span><b>{{ order.total }}</b></div></div></template>
          <template v-else-if="activeSection === 'Perfil'"><div class="account-block"><form class="profile-form" @submit.prevent="saveProfile"><label>Nombre completo<input v-model="profileForm.name" required maxlength="120" /></label><label>Correo electrónico<input v-model="profileForm.email" type="email" required /></label><p v-if="profileMessage" class="verification-success">{{ profileMessage }}</p><p v-if="profileError" class="auth-error">{{ profileError }}</p><button class="primary-button" type="submit" :disabled="savingProfile">{{ savingProfile ? 'Guardando...' : 'Guardar cambios' }}</button></form></div></template>
          <template v-else-if="activeSection === 'Domicilios'"><div class="account-block"><div class="block-heading"><div><p class="eyebrow">Envíos</p><h2>Tus domicilios</h2></div><button class="primary-button" @click="showAddressForm = !showAddressForm"><Plus :size="15" /> Nuevo domicilio</button></div><form v-if="showAddressForm" class="checkout-form" @submit.prevent="saveAddress"><div class="form-grid"><label>Etiqueta<input v-model="addressForm.label" required /></label><label>Destinatario<input v-model="addressForm.recipient" required /></label><label class="full-field">Domicilio<input v-model="addressForm.line1" required /></label><label>Ciudad<input v-model="addressForm.city" required /></label><label>Estado<input v-model="addressForm.state" required /></label><label>Código postal<input v-model="addressForm.postal_code" pattern="[0-9]{5}" required /></label><label>Teléfono<input v-model="addressForm.phone" /></label></div><p v-if="addressError" class="auth-error">{{ addressError }}</p><button class="primary-button" type="submit" :disabled="savingAddress">{{ savingAddress ? 'Guardando...' : 'Guardar domicilio' }}</button></form><p v-if="!addresses.length && !showAddressForm">No tienes domicilios guardados.</p><article v-for="address in addresses" :key="address.id" class="address-card"><div><p class="eyebrow">{{ address.label }} <span v-if="address.is_default">· Predeterminado</span></p><strong>{{ address.recipient }}</strong><p>{{ address.line1 }}, {{ address.city }}, {{ address.state }} · {{ address.postal_code }}</p></div><div><button v-if="!address.is_default" class="text-link" @click="makeDefault(address.id)"><Check :size="14" /> Usar por defecto</button><button class="remove-button" @click="removeAddress(address.id)"><Trash2 :size="14" /> Eliminar</button></div></article></div></template>
         <template v-else-if="activeSection === 'Pedidos'"><div class="account-block"><p v-if="!orders.length">Aún no tienes pedidos registrados.</p><div class="order-row" v-for="order in orders" :key="order.id"><div class="order-icon"><Package :size="17" /></div><div class="order-info"><strong>{{ order.id }}</strong><span>{{ order.items }} · {{ order.date }}</span></div><span class="order-status">{{ order.status }}</span><b>{{ order.total }}</b></div></div></template>
-         <template v-else-if="activeSection === 'Wishlist'"><div class="account-block"><p v-if="!wishlist.length">Aún no tienes favoritos guardados.</p><div v-else class="wishlist-account-grid"><ProductCard v-for="product in wishlist" :key="product.id" :product="product" :liked="true" :adding="false" @toggle-like="removeWishlistItem" @add="cart.add" /></div></div></template>
+          <template v-else-if="activeSection === 'Wishlist'"><div class="account-block"><p v-if="!wishlist.length">Aún no tienes favoritos guardados.</p><div v-else class="wishlist-account-grid"><ProductCard v-for="product in wishlist" :key="product.id" :product="product" :liked="true" :adding="false" @toggle-like="removeWishlistItem" @add="cart.add" /></div></div></template>
+         <template v-else-if="activeSection === 'Reseñas'"><div class="account-block"><p v-if="!reviews.length">Aún no has publicado reseñas.</p><article v-for="review in reviews" :key="review.id" class="review-account-row"><img :src="review.product.image" :alt="review.product.name" /><div><p class="eyebrow">{{ review.product.house }} · {{ review.date }}</p><h2>{{ review.product.name }}</h2><div class="review-stars"><span v-for="star in 5" :key="star">{{ star <= review.rating ? '★' : '☆' }}</span><span v-if="review.verified" class="verified"><Check :size="11" /> Compra verificada</span></div><p>{{ review.comment }}</p></div></article></div></template>
          <template v-else><div class="account-block"><p class="eyebrow">Próximamente</p><h2>{{ activeSection }}</h2><p>Esta sección conserva su diseño inicial mientras se conecta al siguiente servicio de la API.</p></div></template>
       </section>
     </main>

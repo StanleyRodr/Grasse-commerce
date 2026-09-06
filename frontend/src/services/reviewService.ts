@@ -15,3 +15,5 @@ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
 
 export const getReviews = (productId: number) => request<ReviewResponse>(`/products/${productId}/reviews`)
 export const createReview = (productId: number, rating: number, comment: string) => request(`/products/${productId}/reviews`, { method: 'POST', body: JSON.stringify({ rating, comment }) })
+
+export const getMyReviews = () => request<{ data: Array<{ id: number; rating: number; comment: string; verified_purchase: boolean; created_at: string; product: { id: number; name: string; house: string; image: string } }> }>('/auth/reviews')

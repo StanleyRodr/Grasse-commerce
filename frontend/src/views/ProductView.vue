@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { ArrowLeft, Check, ChevronDown, Heart, Minus, Plus, ShoppingBag, Star } from '@lucide/vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
-import { getProductById } from '../services/catalogService'
+import { getProductById, getProducts } from '../services/catalogService'
 import type { Product } from '../types/catalog'
 import { createReview, getReviews } from '../services/reviewService'
 
@@ -34,10 +34,12 @@ const sizes = computed(() => [
 ])
 const currentPrice = computed(() => sizes.value.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
 const reviews = ref<Array<{ name: string; date: string; rating: number; text: string; verified: boolean }>>([])
+const relatedProducts = ref<Product[]>([])
 
 onMounted(async () => {
   try {
     product.value = (await getProductById(Number(route.params.id))).data
+    relatedProducts.value = (await getProducts({ per_page: 6 })).data.filter((item) => item.id !== product.value.id).slice(0, 2)
     const response = await getReviews(product.value.id)
     reviews.value = response.data.data.map((review) => ({ name: review.user.name, date: new Date(review.created_at).toLocaleDateString('es-MX'), rating: review.rating, text: review.comment, verified: review.verified_purchase }))
   } catch {
@@ -76,7 +78,7 @@ const starState = (star: number, rating: number) => {
 
       <section class="reviews-section"><div class="reviews-heading"><div><p class="eyebrow">La comunidad Grasse</p><h2>Lo que dicen de <em>{{ product.name }}</em></h2></div><button class="review-cta" @click="showReviewForm = !showReviewForm">{{ showReviewForm ? 'Cerrar formulario' : 'Escribir una reseña' }} <ArrowLeft v-if="showReviewForm" :size="15" /><Plus v-else :size="15" /></button></div><div class="reviews-layout"><div class="rating-summary"><div class="rating-number">{{ product.rating }} <Star :size="22" fill="currentColor" /></div><p>Basado en {{ product.reviewCount }} reseñas</p><div v-for="(percentage, index) in [88, 7, 3, 1, 1]" :key="index" class="rating-bar"><span>{{ 5 - index }}</span><Star :size="11" fill="currentColor" /><div><i :style="{ width: `${percentage}%` }"></i></div><small>{{ percentage }}%</small></div></div><div class="review-list"><div v-if="showReviewForm" class="review-form"><div v-if="reviewSubmitted" class="review-success"><Check :size="16" /> Tu reseña se ha guardado para revisión.</div><template v-else><p class="field-label">TU EXPERIENCIA</p><div class="input-stars"><button v-for="star in 5" :key="star" :aria-label="`${star} estrellas`" @click="reviewRating = star"><Star :size="20" :fill="star <= reviewRating ? 'currentColor' : 'none'" /></button></div><textarea v-model="reviewText" placeholder="Cuéntanos qué te pareció este perfume..."></textarea><button class="primary-button" :disabled="!reviewRating || !reviewText.trim()" @click="submitReview">Publicar reseña <ArrowRight :size="16" /></button></template></div><article v-for="review in reviews" :key="review.name" class="review-item"><div class="review-top"><div><strong>{{ review.name }}</strong><span v-if="review.verified" class="verified"><Check :size="11" /> Compra verificada</span></div><time>{{ review.date }}</time></div><div class="review-stars"><Star v-for="star in 5" :key="star" :size="13" :fill="star <= review.rating ? 'currentColor' : 'none'" /></div><p>{{ review.text }}</p></article><button class="load-reviews">Cargar más reseñas <ChevronDown :size="15" /></button></div></div></section>
 
-      <section class="related-section"><div class="section-heading"><div><p class="eyebrow">También te puede gustar</p><h2>Descubre algo nuevo</h2></div><RouterLink class="text-link" to="/catalogo">Ver colección <ArrowLeft :size="15" /></RouterLink></div><div class="related-grid"><RouterLink v-for="item in [{ id: 2, name: 'Another 13', house: 'Le Labo', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=900&q=85' }, { id: 4, name: 'Bal d’Afrique', house: 'Byredo', image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=900&q=85' }]" :key="item.id" :to="`/producto/${item.id}`" class="related-card"><img :src="item.image" :alt="item.name" /><p>{{ item.house }}</p><h3>{{ item.name }}</h3></RouterLink></div></section>
+       <section class="related-section"><div class="section-heading"><div><p class="eyebrow">También te puede gustar</p><h2>Descubre algo nuevo</h2></div><RouterLink class="text-link" to="/catalogo">Ver colección <ArrowLeft :size="15" /></RouterLink></div><div class="related-grid"><RouterLink v-for="item in relatedProducts" :key="item.id" :to="`/producto/${item.id}`" class="related-card"><img :src="item.image" :alt="item.name" /><p>{{ item.house }}</p><h3>{{ item.name }}</h3></RouterLink></div></section>
     </main>
   </div>
 </template>
