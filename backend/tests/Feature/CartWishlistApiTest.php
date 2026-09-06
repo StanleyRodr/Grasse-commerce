@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -43,6 +44,19 @@ class CartWishlistApiTest extends TestCase
             ]])
             ->assertOk()
             ->assertJsonCount(2, 'data.items');
+    }
+
+    public function test_same_product_keeps_distinct_variant_prices(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['price' => 4000]);
+        $small = ProductVariant::create(['product_id' => $product->id, 'label' => '30 ml', 'volume_ml' => 30, 'price' => 2500, 'stock' => 10]);
+        $large = ProductVariant::create(['product_id' => $product->id, 'label' => '100 ml', 'volume_ml' => 100, 'price' => 5500, 'stock' => 10]);
+
+        $this->actingAs($user, 'sanctum')->putJson('/api/cart', ['items' => [
+            ['product_id' => $product->id, 'variant_id' => $small->id, 'quantity' => 1],
+            ['product_id' => $product->id, 'variant_id' => $large->id, 'quantity' => 1],
+        ]])->assertOk()->assertJsonPath('data.subtotal', 8000)->assertJsonCount(2, 'data.items');
     }
 
     public function test_cart_items_cannot_be_modified_by_another_user(): void

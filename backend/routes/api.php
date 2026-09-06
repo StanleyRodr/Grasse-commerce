@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\ProductVariantController;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'service' => 'grasse-api']);
@@ -56,6 +57,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/products', [ProductController::class, 'store']);
     Route::patch('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+    Route::post('/products/{product}/variants', [ProductVariantController::class, 'store']);
+    Route::patch('/variants/{variant}', [ProductVariantController::class, 'update']);
+    Route::delete('/variants/{variant}', [ProductVariantController::class, 'destroy']);
 });
 
 Route::get('/user', function (Request $request) {

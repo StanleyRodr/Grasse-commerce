@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\ProductVariant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,12 +21,14 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:products,id'],
+            'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'quantity' => ['sometimes', 'integer', 'min:1', 'max:99'],
         ]);
 
+        $this->validateVariant($validated['product_id'], $validated['variant_id'] ?? null);
         $cart = $this->cart($request);
         DB::transaction(function () use ($cart, $validated): void {
-            $item = $cart->items()->firstOrNew(['product_id' => $validated['product_id']]);
+            $item = $cart->items()->firstOrNew(['product_id' => $validated['product_id'], 'variant_id' => $validated['variant_id'] ?? null]);
             $item->quantity = min(99, ($item->quantity ?? 0) + ($validated['quantity'] ?? 1));
             $item->save();
         });
@@ -38,10 +41,12 @@ class CartController extends Controller
         $validated = $request->validate([
             'items' => ['required', 'array'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $cart = $this->cart($request);
+        foreach ($validated['items'] as $item) $this->validateVariant($item['product_id'], $item['variant_id'] ?? null);
         DB::transaction(function () use ($cart, $validated): void {
             $cart->items()->delete();
             foreach ($validated['items'] as $item) {
@@ -71,7 +76,7 @@ class CartController extends Controller
 
     private function cart(Request $request): Cart
     {
-        return Cart::firstOrCreate(['user_id' => $request->user()->id])->load('items.product');
+        return Cart::firstOrCreate(['user_id' => $request->user()->id])->load('items.product', 'items.variant');
     }
 
     private function payload(Cart $cart): array
@@ -79,14 +84,15 @@ class CartController extends Controller
         $items = $cart->items->map(fn (CartItem $item) => [
             'id' => $item->id,
             'quantity' => $item->quantity,
+            'variant' => $item->variant ? ['id' => $item->variant->id, 'label' => $item->variant->label, 'price' => $item->variant->price, 'stock' => $item->variant->stock] : null,
             'product' => [
                 'id' => $item->product->id,
                 'name' => $item->product->name,
                 'house' => $item->product->house,
-                'price' => $item->product->price,
+                'price' => $item->variant?->price ?? $item->product->price,
                 'image' => $item->product->image,
             ],
-            'lineTotal' => round($item->quantity * $item->product->price, 2),
+            'lineTotal' => round($item->quantity * ($item->variant?->price ?? $item->product->price), 2),
         ])->values();
 
         $subtotal = round($items->sum('lineTotal'), 2);
@@ -98,5 +104,10 @@ class CartController extends Controller
             'shipping' => $subtotal === 0 || $subtotal >= 1500 ? 0 : 150,
             'total' => $subtotal === 0 || $subtotal >= 1500 ? $subtotal : $subtotal + 150,
         ];
+    }
+
+    private function validateVariant(int $productId, ?int $variantId): void
+    {
+        if ($variantId && !ProductVariant::whereKey($variantId)->where('product_id', $productId)->exists()) abort(422, 'La variante no pertenece al producto.');
     }
 }

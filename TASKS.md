@@ -63,6 +63,7 @@
 - [ ] Verificar permisos y acceso a información privada.
 - [ ] Verificar validaciones, rate limiting y manejo de errores.
 - [ ] Ejecutar revisión final responsive y de accesibilidad.
+- [ ] Refinar diseño visual de cuenta, admin y formularios CRUD.
 
 ## En Progreso
 
@@ -112,3 +113,4 @@
 - [x] Añadir endpoint Stripe Checkout y webhook con validación de firma.
 - [x] Conectar dashboard admin con métricas, pedidos y cambio de estados reales.
 - [x] Implementar CRUD admin de productos y stock persistido.
+- [x] Implementar variantes reales por presentación, precio y stock.

@@ -26,9 +26,11 @@ const product = ref<Product>({
 const loadError = ref('')
 
 const sizes = computed(() => [
-  { label: '30 ml', price: Math.max(0, product.value.price - 1470) },
-  { label: '50 ml', price: product.value.price },
-  { label: '100 ml', price: product.value.price + 1450 },
+  ...(product.value.variants?.length ? product.value.variants.map((variant) => ({ label: variant.label, price: variant.price })) : [
+    { label: '30 ml', price: Math.max(0, product.value.price - 1470) },
+    { label: '50 ml', price: product.value.price },
+    { label: '100 ml', price: product.value.price + 1450 },
+  ]),
 ])
 const currentPrice = computed(() => sizes.value.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
 const reviews = ref<Array<{ name: string; date: string; rating: number; text: string; verified: boolean }>>([])
@@ -44,7 +46,8 @@ onMounted(async () => {
 })
 
 const addToCart = () => {
-  for (let index = 0; index < quantity.value; index += 1) cart.add({ id: product.value.id, name: `${product.value.name} · ${selectedSize.value}`, house: product.value.house, price: currentPrice.value, image: product.value.image })
+  const variant = product.value.variants?.find((item) => item.label === selectedSize.value)
+  for (let index = 0; index < quantity.value; index += 1) cart.add({ id: product.value.id, variantId: variant?.id, variantLabel: selectedSize.value, name: `${product.value.name} · ${selectedSize.value}`, house: product.value.house, price: currentPrice.value, image: product.value.image })
   added.value = true
   window.setTimeout(() => { added.value = false }, 1800)
 }

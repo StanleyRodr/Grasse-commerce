@@ -13,7 +13,10 @@ export type Product = {
   badge?: string
   description?: string
   notes?: string[]
+  variants?: ProductVariant[]
 }
+
+export type ProductVariant = { id: number; label: string; volumeMl: number; price: number; stock: number }
 
 export type ProductListResponse = {
   data: Product[]

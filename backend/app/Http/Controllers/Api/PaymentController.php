@@ -24,7 +24,7 @@ class PaymentController extends Controller
             $session = (new StripeClient($secret))->checkout->sessions->create([
                 'mode' => 'payment',
                 'line_items' => $order->load('items')->items->map(fn ($item) => [
-                    'price_data' => ['currency' => 'mxn', 'product_data' => ['name' => $item->product_name], 'unit_amount' => (int) round($item->unit_price * 100)],
+                    'price_data' => ['currency' => 'mxn', 'product_data' => ['name' => trim($item->product_name . ' ' . ($item->variant_label ?? ''))], 'unit_amount' => (int) round($item->unit_price * 100)],
                     'quantity' => $item->quantity,
                 ])->values()->all(),
                 'metadata' => ['order_id' => (string) $order->id, 'user_id' => (string) $request->user()->id],

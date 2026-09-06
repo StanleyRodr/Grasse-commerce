@@ -79,7 +79,7 @@ class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        return response()->json(['data' => $this->transform($product)]);
+        return response()->json(['data' => [...$this->transform($product->load('variants')), 'variants' => $product->variants->map(fn ($variant) => ['id' => $variant->id, 'label' => $variant->label, 'volumeMl' => $variant->volume_ml, 'price' => $variant->price, 'stock' => $variant->stock])->values()]]);
     }
 
     private function transform(Product $product): array

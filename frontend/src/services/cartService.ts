@@ -3,7 +3,7 @@ import type { CartProduct } from '../stores/cart'
 
 type CartResponse = {
   data: {
-    items: Array<{ id: number; quantity: number; product: CartProduct }>
+    items: Array<{ id: number; quantity: number; product: CartProduct; variant?: { id: number; label: string; price: number; stock: number } | null }>
   }
 }
 
@@ -26,13 +26,13 @@ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
 }
 
 export const getRemoteCart = () => request<CartResponse>('/cart')
-export const replaceRemoteCart = (items: Array<{ product_id: number; quantity: number }>) => request<CartResponse>('/cart', {
+export const replaceRemoteCart = (items: Array<{ product_id: number; variant_id?: number; quantity: number }>) => request<CartResponse>('/cart', {
   method: 'PUT',
   body: JSON.stringify({ items }),
 })
-export const addRemoteCartItem = (productId: number, quantity = 1) => request<CartResponse>('/cart/items', {
+export const addRemoteCartItem = (productId: number, quantity = 1, variantId?: number) => request<CartResponse>('/cart/items', {
   method: 'POST',
-  body: JSON.stringify({ product_id: productId, quantity }),
+  body: JSON.stringify({ product_id: productId, variant_id: variantId, quantity }),
 })
 export const updateRemoteCartItem = (itemId: number, quantity: number) => request<CartResponse>(`/cart/items/${itemId}`, {
   method: 'PATCH',

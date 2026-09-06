@@ -104,3 +104,4 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se conectó la gestión de domicilios de cuenta con listado, alta, predeterminado y eliminación.
 - 2026-08-18: Se conectó dashboard admin con métricas, pedidos reales y actualización de estados.
 - 2026-08-18: Se añadió CRUD administrativo de productos con stock persistido.
+- 2026-08-18: Se añadieron variantes reales de producto y presentaciones conectadas al detalle.

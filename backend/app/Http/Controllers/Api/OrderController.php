@@ -26,14 +26,14 @@ class OrderController extends Controller
     {
         $validated = $request->validate(['address_id' => ['required', 'integer', 'exists:addresses,id']]);
         $address = $request->user()->addresses()->findOrFail($validated['address_id']);
-        $cart = Cart::with('items.product')->where('user_id', $request->user()->id)->first();
+        $cart = Cart::with('items.product', 'items.variant')->where('user_id', $request->user()->id)->first();
         abort_if(!$cart || $cart->items->isEmpty(), 422, 'El carrito está vacío.');
 
-        $subtotal = round($cart->items->sum(fn ($item) => $item->quantity * $item->product->price), 2);
+        $subtotal = round($cart->items->sum(fn ($item) => $item->quantity * ($item->variant?->price ?? $item->product->price)), 2);
         $shipping = $subtotal >= 1500 ? 0 : 150;
         $order = DB::transaction(function () use ($request, $address, $cart, $subtotal, $shipping): Order {
             $order = $request->user()->orders()->create(['address_id' => $address->id, 'status' => 'pending', 'subtotal' => $subtotal, 'shipping' => $shipping, 'total' => $subtotal + $shipping]);
-            foreach ($cart->items as $item) $order->items()->create(['product_id' => $item->product_id, 'product_name' => $item->product->name, 'unit_price' => $item->product->price, 'quantity' => $item->quantity]);
+            foreach ($cart->items as $item) $order->items()->create(['product_id' => $item->product_id, 'variant_id' => $item->variant_id, 'product_name' => $item->product->name, 'variant_label' => $item->variant?->label, 'unit_price' => $item->variant?->price ?? $item->product->price, 'quantity' => $item->quantity]);
             $cart->items()->delete();
             return $order;
         });
