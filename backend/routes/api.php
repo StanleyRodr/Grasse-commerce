@@ -53,6 +53,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/overview', [AdminController::class, 'overview']);
     Route::get('/orders', [AdminController::class, 'orders']);
     Route::patch('/orders/{order}/status', [AdminController::class, 'updateOrderStatus']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::patch('/products/{product}', [ProductController::class, 'update']);
+    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 });
 
 Route::get('/user', function (Request $request) {

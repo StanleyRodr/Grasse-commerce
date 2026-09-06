@@ -12,3 +12,5 @@ export type AdminOverview = { users: number; products: number; orders: number; s
 export const getAdminOverview = () => request<{ data: AdminOverview }>('/admin/overview')
 export const getAdminOrders = () => request<{ data: { data: AdminOrder[] } }>('/admin/orders')
 export const updateAdminOrderStatus = (id: number, status: string) => request<{ data: AdminOrder }>(`/admin/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
+export type AdminProduct = { id: number; name: string; house: string; price: number; stock: number; image: string }
+export const getAdminProducts = () => request<{ data: AdminProduct[] }>('/products?per_page=24')

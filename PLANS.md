@@ -103,3 +103,4 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se integró Stripe Checkout y se añadió webhook con validación de firma.
 - 2026-08-18: Se conectó la gestión de domicilios de cuenta con listado, alta, predeterminado y eliminación.
 - 2026-08-18: Se conectó dashboard admin con métricas, pedidos reales y actualización de estados.
+- 2026-08-18: Se añadió CRUD administrativo de productos con stock persistido.

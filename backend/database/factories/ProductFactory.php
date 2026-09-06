@@ -23,6 +23,7 @@ class ProductFactory extends Factory
             'reviews_count' => 0,
             'image' => 'https://images.unsplash.com/photo-1541643600914-78b084683601',
             'badge' => null,
+            'stock' => 25,
             'description' => 'Una composición elegante para todos los días.',
             'notes' => ['Notas frescas', 'Maderas suaves'],
         ];

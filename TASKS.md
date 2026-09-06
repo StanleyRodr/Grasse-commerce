@@ -111,3 +111,4 @@
 - [x] Conectar gestión de domicilios de cuenta con la API Laravel.
 - [x] Añadir endpoint Stripe Checkout y webhook con validación de firma.
 - [x] Conectar dashboard admin con métricas, pedidos y cambio de estados reales.
+- [x] Implementar CRUD admin de productos y stock persistido.

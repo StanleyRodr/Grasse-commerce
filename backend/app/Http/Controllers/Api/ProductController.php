@@ -9,6 +9,23 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public function store(Request $request): JsonResponse
+    {
+        return response()->json(['data' => Product::create($this->validated($request))], 201);
+    }
+
+    public function update(Request $request, Product $product): JsonResponse
+    {
+        $product->update($this->validated($request, true));
+        return response()->json(['data' => $product->fresh()]);
+    }
+
+    public function destroy(Product $product): JsonResponse
+    {
+        $product->delete();
+        return response()->json(['message' => 'Producto eliminado.']);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -82,6 +99,20 @@ class ProductController extends Controller
             'badge' => $product->badge,
             'description' => $product->description,
             'notes' => $product->notes ?? [],
+            'stock' => $product->stock,
         ];
+    }
+
+    private function validated(Request $request, bool $partial = false): array
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:120'], 'house' => ['required', 'string', 'max:120'],
+            'category' => ['required', 'string', 'max:50'], 'scent_family' => ['required', 'string', 'max:50'],
+            'occasion' => ['required', 'string', 'max:50'], 'price' => ['required', 'numeric', 'min:0'],
+            'rating' => ['sometimes', 'numeric', 'min:0', 'max:5'], 'reviews_count' => ['sometimes', 'integer', 'min:0'],
+            'image' => ['required', 'url', 'max:500'], 'badge' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string'], 'notes' => ['nullable', 'array'], 'stock' => ['required', 'integer', 'min:0'],
+        ];
+        return $request->validate($partial ? array_map(fn ($rule) => array_merge($rule, ['sometimes']), $rules) : $rules);
     }
 }

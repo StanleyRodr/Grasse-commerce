@@ -22,6 +22,7 @@ class Product extends Model
         'badge',
         'description',
         'notes',
+        'stock',
     ];
 
     protected function casts(): array
@@ -31,6 +32,7 @@ class Product extends Model
             'rating' => 'float',
             'reviews_count' => 'integer',
             'notes' => 'array',
+            'stock' => 'integer',
         ];
     }
 }
