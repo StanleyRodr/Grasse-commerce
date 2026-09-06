@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/email/verification-notification', [AuthController::class, 'sendVerificationNotification'])->middleware('throttle:6,1');
     Route::get('/cart', [CartController::class, 'show']);
+    Route::put('/cart', [CartController::class, 'replace']);
     Route::post('/cart/items', [CartController::class, 'add']);
     Route::patch('/cart/items/{cartItem}', [CartController::class, 'update']);
     Route::delete('/cart/items/{cartItem}', [CartController::class, 'remove']);

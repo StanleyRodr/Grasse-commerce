@@ -26,6 +26,10 @@ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
 }
 
 export const getRemoteCart = () => request<CartResponse>('/cart')
+export const replaceRemoteCart = (items: Array<{ product_id: number; quantity: number }>) => request<CartResponse>('/cart', {
+  method: 'PUT',
+  body: JSON.stringify({ items }),
+})
 export const addRemoteCartItem = (productId: number, quantity = 1) => request<CartResponse>('/cart/items', {
   method: 'POST',
   body: JSON.stringify({ product_id: productId, quantity }),

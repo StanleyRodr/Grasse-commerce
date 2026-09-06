@@ -33,6 +33,7 @@ const placeOrder = async () => {
   }
 
   try {
+    await cart.syncRemote()
     const savedAddress = await createAddress({ label: 'Envío', recipient: `${firstName.value} ${lastName.value}`, line1: address.value, city: city.value, state: state.value, postal_code: postalCode.value, is_default: true })
     const order = await createOrder(savedAddress.data.id)
     orderNumber.value = `ORDEN #GR-${String(order.data.id).padStart(6, '0')}`

@@ -30,6 +30,21 @@ class CartWishlistApiTest extends TestCase
             ->assertJsonPath('data.total', 3600);
     }
 
+    public function test_cart_can_be_replaced_before_checkout(): void
+    {
+        $user = User::factory()->create();
+        $first = Product::factory()->create();
+        $second = Product::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson('/api/cart', ['items' => [
+                ['product_id' => $first->id, 'quantity' => 2],
+                ['product_id' => $second->id, 'quantity' => 1],
+            ]])
+            ->assertOk()
+            ->assertJsonCount(2, 'data.items');
+    }
+
     public function test_cart_items_cannot_be_modified_by_another_user(): void
     {
         $owner = User::factory()->create();

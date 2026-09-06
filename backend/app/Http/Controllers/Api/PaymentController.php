@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Stripe\Checkout\Session;
 use Stripe\StripeClient;
 use Stripe\Webhook;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -20,16 +20,21 @@ class PaymentController extends Controller
         $secret = config('services.stripe.secret');
         if (!$secret) return response()->json(['message' => 'Stripe no está configurado.'], 503);
 
-        $session = (new StripeClient($secret))->checkout->sessions->create([
-            'mode' => 'payment',
-            'line_items' => $order->load('items')->items->map(fn ($item) => [
-                'price_data' => ['currency' => 'mxn', 'product_data' => ['name' => $item->product_name], 'unit_amount' => (int) round($item->unit_price * 100)],
-                'quantity' => $item->quantity,
-            ])->values()->all(),
-            'metadata' => ['order_id' => (string) $order->id, 'user_id' => (string) $request->user()->id],
-            'success_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=success&order=' . $order->id,
-            'cancel_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=cancelled&order=' . $order->id,
-        ]);
+        try {
+            $session = (new StripeClient($secret))->checkout->sessions->create([
+                'mode' => 'payment',
+                'line_items' => $order->load('items')->items->map(fn ($item) => [
+                    'price_data' => ['currency' => 'mxn', 'product_data' => ['name' => $item->product_name], 'unit_amount' => (int) round($item->unit_price * 100)],
+                    'quantity' => $item->quantity,
+                ])->values()->all(),
+                'metadata' => ['order_id' => (string) $order->id, 'user_id' => (string) $request->user()->id],
+                'success_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=success&order=' . $order->id,
+                'cancel_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=cancelled&order=' . $order->id,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Stripe Checkout session creation failed.', ['order_id' => $order->id, 'exception' => $exception]);
+            return response()->json(['message' => 'No pudimos iniciar el pago. Intenta nuevamente.'], 502);
+        }
 
         return response()->json(['data' => ['id' => $session->id, 'url' => $session->url]]);
     }

@@ -33,6 +33,25 @@ class CartController extends Controller
         return response()->json(['data' => $this->payload($cart->fresh())], 201);
     }
 
+    public function replace(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+        ]);
+
+        $cart = $this->cart($request);
+        DB::transaction(function () use ($cart, $validated): void {
+            $cart->items()->delete();
+            foreach ($validated['items'] as $item) {
+                $cart->items()->create($item);
+            }
+        });
+
+        return response()->json(['data' => $this->payload($cart->fresh())]);
+    }
+
     public function update(Request $request, CartItem $cartItem): JsonResponse
     {
         abort_unless($cartItem->cart->user_id === $request->user()->id, 404);

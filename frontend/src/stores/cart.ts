@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getAuthToken } from '../services/authService'
-import { addRemoteCartItem, getRemoteCart, removeRemoteCartItem, updateRemoteCartItem } from '../services/cartService'
+import { addRemoteCartItem, getRemoteCart, removeRemoteCartItem, replaceRemoteCart, updateRemoteCartItem } from '../services/cartService'
 
 export type CartProduct = {
   id: number
@@ -57,5 +57,13 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  return { items, count, add, removeOne, removeAll, hydrate }
+  const syncRemote = async () => {
+    if (!getAuthToken()) return
+
+    const quantities = new Map<number, number>()
+    items.value.forEach((item) => quantities.set(item.id, (quantities.get(item.id) ?? 0) + 1))
+    await replaceRemoteCart([...quantities.entries()].map(([product_id, quantity]) => ({ product_id, quantity })))
+  }
+
+  return { items, count, add, removeOne, removeAll, hydrate, syncRemote }
 })
