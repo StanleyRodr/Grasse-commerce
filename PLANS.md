@@ -95,3 +95,8 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se implementaron registro, login, usuario actual y logout con tokens de Laravel Sanctum.
 - 2026-08-18: Se añadieron verificación de correo, recuperación y restablecimiento de contraseña con notificaciones Laravel.
 - 2026-08-18: Se añadió rol administrativo, middleware de autorización y rate limiting para autenticación.
+- 2026-08-18: Se implementaron endpoints protegidos de carrito y wishlist y sincronización del carrito autenticado en Vue.
+- 2026-08-18: Se añadieron domicilios persistidos, pedidos desde carrito y pruebas de aislamiento por usuario.
+- 2026-08-18: Se añadieron reseñas verificadas, limitadas a productos de pedidos entregados.
+- 2026-08-18: Se conectó la lectura y publicación de reseñas del detalle con servicios HTTP del frontend.
+- 2026-08-18: Se conectaron checkout autenticado e historial de pedidos con domicilios y pedidos Laravel.

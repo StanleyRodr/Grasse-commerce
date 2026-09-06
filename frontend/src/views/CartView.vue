@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from '@lucide/vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useCartStore, type CartProduct } from '../stores/cart'
@@ -21,6 +21,7 @@ const shipping = computed(() => subtotal.value >= 1500 || subtotal.value === 0 ?
 const total = computed(() => subtotal.value + shipping.value)
 const money = (value: number) => `$${value.toLocaleString('es-MX')} MXN`
 const addOne = (product: CartProduct) => cart.add(product)
+onMounted(() => { void cart.hydrate() })
 </script>
 
 <template>

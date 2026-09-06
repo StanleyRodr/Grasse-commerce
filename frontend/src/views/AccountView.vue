@@ -3,15 +3,17 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { ArrowLeft, Check, ChevronRight, Heart, MapPin, Package, Pencil, Star } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
 import { logout } from '../services/authService'
+import { getAddresses, getOrders } from '../services/commerceService'
 import { useRouter } from 'vue-router'
 
 const activeSection = ref('Resumen')
 const sections = ['Resumen', 'Perfil', 'Domicilios', 'Pedidos', 'Wishlist', 'Reseñas']
 const saved = ref(false)
-const orders = [
+const addresses = ref<Awaited<ReturnType<typeof getAddresses>>['data']>([])
+const orders = ref([
   { id: 'GR-2026-0012', date: '18 mayo 2026', status: 'Enviado', total: '$4,250 MXN', items: 'Santal 33 · 50 ml' },
   { id: 'GR-2026-0007', date: '02 abril 2026', status: 'Entregado', total: '$3,120 MXN', items: 'Gris Charnel · 50 ml' },
-]
+])
 const wishlist = [
   { name: 'Another 13', house: 'Le Labo', price: '$3,980 MXN', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=500&q=85' },
   { name: 'Bal d’Afrique', house: 'Byredo', price: '$4,890 MXN', image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=500&q=85' },
@@ -25,6 +27,14 @@ let logoutButton: HTMLButtonElement | null = null
 onMounted(() => {
   logoutButton = document.querySelector<HTMLButtonElement>('.logout-button')
   logoutButton?.addEventListener('click', handleLogout)
+  void getOrders().then((response) => {
+    const statusLabels: Record<string, string> = { pending: 'Pendiente', processing: 'En proceso', shipped: 'Enviado', delivered: 'Entregado', cancelled: 'Cancelado' }
+    orders.value = response.data.data.map((order) => ({ id: `GR-${String(order.id).padStart(6, '0')}`, date: new Date(order.created_at).toLocaleDateString('es-MX'), status: statusLabels[order.status] ?? order.status, total: `$${order.total.toLocaleString('es-MX')} MXN`, items: order.items.map((item) => `${item.product_name} · ${item.quantity}`).join(', ') }))
+  }).catch(() => undefined)
+  void getAddresses().then((response) => {
+    addresses.value = response.data
+    saved.value = response.data.some((address) => address.is_default)
+  }).catch(() => undefined)
 })
 onUnmounted(() => logoutButton?.removeEventListener('click', handleLogout))
 </script>

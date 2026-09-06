@@ -103,3 +103,8 @@
 - [x] Implementar registro, login, usuario actual y logout con Sanctum.
 - [x] Implementar verificación de correo y restablecimiento de contraseña en Laravel.
 - [x] Añadir rate limiting a los endpoints sensibles de autenticación.
+- [x] Implementar API protegida de carrito y wishlist con sincronización básica del frontend.
+- [x] Implementar API persistida de domicilios y pedidos con vaciado seguro del carrito.
+- [x] Implementar reseñas verificadas para compradores con pedido entregado.
+- [x] Conectar reseñas del detalle de producto con la API Laravel.
+- [x] Conectar checkout autenticado e historial de pedidos con la API Laravel.

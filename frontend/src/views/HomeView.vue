@@ -6,6 +6,8 @@ import ProductCard from '../components/ProductCard.vue'
 import { useCartStore } from '../stores/cart'
 import { getProducts } from '../services/catalogService'
 import type { Product } from '../types/catalog'
+import { getAuthToken } from '../services/authService'
+import { addToWishlist, getWishlist, removeFromWishlist } from '../services/wishlistService'
 
  const products = ref<Product[]>([])
  const isLoading = ref(true)
@@ -37,10 +39,15 @@ const totalPages = computed(() => Math.max(1, Math.ceil(sortedProducts.value.len
 const paginatedProducts = computed(() => sortedProducts.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize))
 watch([activeCategory, searchQuery, sortBy, selectedScent, minRating, maxPrice], () => { currentPage.value = 1 })
 const clearFilters = () => { activeCategory.value = 'Todos'; selectedScent.value = 'Todos'; minRating.value = 0; maxPrice.value = 6000 }
-const toggleLike = (id: number) => { likedProducts.value = likedProducts.value.includes(id) ? likedProducts.value.filter((item) => item !== id) : [...likedProducts.value, id] }
+const toggleLike = (id: number) => {
+  const liked = likedProducts.value.includes(id)
+  likedProducts.value = liked ? likedProducts.value.filter((item) => item !== id) : [...likedProducts.value, id]
+  if (!getAuthToken()) return
+  void (liked ? removeFromWishlist(id) : addToWishlist(id)).catch(() => undefined)
+}
 const focusSearch = () => { document.querySelector<HTMLInputElement>('.search-input')?.focus() }
  const addToCart = (product: Product) => { cart.add(product); addingProductId.value = product.id; cartPulse.value = true; toastMessage.value = `${product.name} se añadió al carrito`; window.setTimeout(() => { addingProductId.value = null }, 1200); window.setTimeout(() => { cartPulse.value = false }, 650); window.setTimeout(() => { toastMessage.value = '' }, 2600) }
- const loadCatalog = async () => {
+const loadCatalog = async () => {
    isLoading.value = true
    loadError.value = ''
 
@@ -52,8 +59,12 @@ const focusSearch = () => { document.querySelector<HTMLInputElement>('.search-in
    } finally {
      isLoading.value = false
    }
- }
- onMounted(loadCatalog)
+}
+onMounted(() => {
+  void loadCatalog()
+  void cart.hydrate()
+  if (getAuthToken()) void getWishlist().then((response) => { likedProducts.value = response.data.map((item) => item.product.id) }).catch(() => undefined)
+})
 </script>
 
 <template>

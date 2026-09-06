@@ -5,6 +5,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { getProductById } from '../services/catalogService'
 import type { Product } from '../types/catalog'
+import { createReview, getReviews } from '../services/reviewService'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,15 +31,13 @@ const sizes = computed(() => [
   { label: '100 ml', price: product.value.price + 1450 },
 ])
 const currentPrice = computed(() => sizes.value.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
-const reviews = [
-  { name: 'Sofía M.', date: '12 mayo 2026', rating: 5, text: 'Tiene una presencia preciosa y muy elegante. La duración en piel superó mis expectativas.', verified: true },
-  { name: 'Daniel R.', date: '28 abril 2026', rating: 5, text: 'El envío llegó rápido y la presentación es impecable. Definitivamente se volvió mi perfume diario.', verified: true },
-  { name: 'Mariana C.', date: '04 abril 2026', rating: 4, text: 'Muy buena estela, aunque en mi piel se percibe un poco más suave después de unas horas.', verified: true },
-]
+const reviews = ref<Array<{ name: string; date: string; rating: number; text: string; verified: boolean }>>([])
 
 onMounted(async () => {
   try {
     product.value = (await getProductById(Number(route.params.id))).data
+    const response = await getReviews(product.value.id)
+    reviews.value = response.data.data.map((review) => ({ name: review.user.name, date: new Date(review.created_at).toLocaleDateString('es-MX'), rating: review.rating, text: review.comment, verified: review.verified_purchase }))
   } catch {
     loadError.value = 'No pudimos cargar este producto.'
   }
@@ -49,10 +48,15 @@ const addToCart = () => {
   added.value = true
   window.setTimeout(() => { added.value = false }, 1800)
 }
-const submitReview = () => {
+const submitReview = async () => {
   if (!reviewRating.value || !reviewText.value.trim()) return
-  reviewSubmitted.value = true
-  showReviewForm.value = false
+  try {
+    await createReview(product.value.id, reviewRating.value, reviewText.value.trim())
+    reviewSubmitted.value = true
+    showReviewForm.value = false
+  } catch {
+    reviewSubmitted.value = false
+  }
 }
 const starState = (star: number, rating: number) => {
   if (rating >= star) return 'is-filled'
