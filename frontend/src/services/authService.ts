@@ -39,6 +39,18 @@ export const register = (name: string, email: string, password: string, password
 
 export const forgotPassword = (email: string) => request('/auth/password/forgot', { email })
 
+export const resendVerificationEmail = async () => {
+  const token = getAuthToken()
+  if (!token) throw new Error('Inicia sesión para solicitar un nuevo correo.')
+  const response = await fetch(`${apiBaseUrl}/auth/email/verification-notification`, {
+    method: 'POST',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+  })
+  const payload = await response.json() as { message?: string }
+  if (!response.ok) throw new Error(payload.message ?? 'No pudimos enviar el correo.')
+  return payload
+}
+
 export const resetPassword = (token: string, email: string, password: string, passwordConfirmation: string) => request('/auth/password/reset', {
   token,
   email,

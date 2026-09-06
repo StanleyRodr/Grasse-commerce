@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -66,13 +67,17 @@ class AuthController extends Controller
         return response()->json(['message' => 'Correo de verificación enviado.']);
     }
 
-    public function verifyEmail(Request $request, int $id, string $hash): JsonResponse
+    public function verifyEmail(Request $request, int $id, string $hash): Response
     {
         $user = User::query()->findOrFail($id);
         abort_unless(hash_equals(sha1($user->getEmailForVerification()), $hash), 403);
 
         if (!$user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
+        }
+
+        if (!$request->expectsJson()) {
+            return redirect()->away(rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/') . '/verificar-correo?verified=1');
         }
 
         return response()->json(['message' => 'Correo verificado correctamente.']);

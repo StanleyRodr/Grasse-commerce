@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +34,18 @@ class OrderController extends Controller
         $subtotal = round($cart->items->sum(fn ($item) => $item->quantity * ($item->variant?->price ?? $item->product->price)), 2);
         $shipping = $subtotal >= 1500 ? 0 : 150;
         $order = DB::transaction(function () use ($request, $address, $cart, $subtotal, $shipping): Order {
+            foreach ($cart->items as $item) {
+                if ($item->variant_id) {
+                    $variant = ProductVariant::query()->whereKey($item->variant_id)->lockForUpdate()->firstOrFail();
+                    abort_if($variant->stock < $item->quantity, 422, 'No hay suficiente stock para una presentación seleccionada.');
+                    $variant->decrement('stock', $item->quantity);
+                } else {
+                    $product = Product::query()->whereKey($item->product_id)->lockForUpdate()->firstOrFail();
+                    abort_if($product->stock < $item->quantity, 422, "No hay suficiente stock para {$product->name}.");
+                    $product->decrement('stock', $item->quantity);
+                }
+            }
+
             $order = $request->user()->orders()->create(['address_id' => $address->id, 'status' => 'pending', 'subtotal' => $subtotal, 'shipping' => $shipping, 'total' => $subtotal + $shipping]);
             foreach ($cart->items as $item) $order->items()->create(['product_id' => $item->product_id, 'variant_id' => $item->variant_id, 'product_name' => $item->product->name, 'variant_label' => $item->variant?->label, 'unit_price' => $item->variant?->price ?? $item->product->price, 'quantity' => $item->quantity]);
             $cart->items()->delete();

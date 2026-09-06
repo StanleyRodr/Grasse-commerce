@@ -50,4 +50,32 @@ class OrderAddressApiTest extends TestCase
         $address = $user->addresses()->create($this->addressPayload());
         $this->actingAs($user, 'sanctum')->postJson('/api/orders', ['address_id' => $address->id])->assertUnprocessable();
     }
+
+    public function test_creating_order_decrements_product_stock(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['stock' => 3]);
+        $address = $user->addresses()->create($this->addressPayload());
+        $cart = Cart::create(['user_id' => $user->id]);
+        $cart->items()->create(['product_id' => $product->id, 'quantity' => 2]);
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', ['address_id' => $address->id])->assertCreated();
+
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock' => 1]);
+    }
+
+    public function test_order_is_rejected_when_stock_is_insufficient(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['stock' => 1]);
+        $address = $user->addresses()->create($this->addressPayload());
+        $cart = Cart::create(['user_id' => $user->id]);
+        $cart->items()->create(['product_id' => $product->id, 'quantity' => 2]);
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', ['address_id' => $address->id])
+            ->assertUnprocessable();
+
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock' => 1]);
+        $this->assertDatabaseCount('orders', 0);
+    }
 }

@@ -18,7 +18,7 @@
 
 - [x] Crear detalle con variantes de presentación mock.
 - [x] Implementar búsqueda, categorías por ocasión, familias olfativas, filtros por precio/calificación, ordenamiento y paginación mock.
-- [ ] Crear tarjetas de producto con wishlist y carrito.
+- [x] Crear tarjetas de producto con wishlist y carrito.
 - [x] Crear página de detalle de producto.
 - [x] Implementar primera versión del carrito y su contador compartido.
 - [x] Crear vista independiente de carrito con cantidades, eliminación, subtotal y total.
@@ -29,7 +29,7 @@
 
 - [x] Crear pantallas mock de registro, login y cierre de sesión.
 - [x] Crear pantallas mock de recuperación y restablecimiento de contraseña.
-- [ ] Crear pantalla de verificación de correo.
+- [x] Crear pantalla de verificación de correo.
 - [x] Crear perfil mock y edición de datos personales.
 - [x] Crear gestión mock de múltiples domicilios y domicilio predeterminado.
 - [x] Crear resumen mock, historial de pedidos y estados.
@@ -114,3 +114,6 @@
 - [x] Conectar dashboard admin con métricas, pedidos y cambio de estados reales.
 - [x] Implementar CRUD admin de productos y stock persistido.
 - [x] Implementar variantes reales por presentación, precio y stock.
+- [x] Añadir pantalla de verificación de correo con reenvío autenticado.
+- [x] Conectar la wishlist de la cuenta con el servicio persistido.
+- [x] Validar stock y descontarlo al crear pedidos.

@@ -1,6 +1,7 @@
 import { getAuthToken } from './authService'
+import type { Product } from '../types/catalog'
 
-type WishlistResponse = { data: Array<{ product: { id: number } }> }
+type WishlistResponse = { data: Array<{ product: Pick<Product, 'id' | 'name' | 'house' | 'price' | 'image'> }> }
 const apiBaseUrl = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
 const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {

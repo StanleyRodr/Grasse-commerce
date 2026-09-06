@@ -42,7 +42,7 @@ const submit = async () => {
 
     saveAuthSession(response)
     submitted.value = true
-    await router.push({ name: isLogin.value ? 'account' : 'home' })
+    await router.push({ name: isRegister.value ? 'verify-email' : isLogin.value ? 'account' : 'home' })
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No pudimos completar la solicitud.'
   } finally {

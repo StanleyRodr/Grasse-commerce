@@ -6,6 +6,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import AuthView from '../views/AuthView.vue'
 import AccountView from '../views/AccountView.vue'
 import AdminView from '../views/AdminView.vue'
+import VerifyEmailView from '../views/VerifyEmailView.vue'
 import { getAuthToken, getAuthUser, getCurrentUser } from '../services/authService'
 
 export const router = createRouter({
@@ -20,6 +21,7 @@ export const router = createRouter({
     { path: '/registro', name: 'register', component: AuthView },
     { path: '/recuperar-contrasena', name: 'forgot-password', component: AuthView },
     { path: '/restablecer-contrasena', name: 'reset-password', component: AuthView },
+    { path: '/verificar-correo', name: 'verify-email', component: VerifyEmailView, meta: { requiresAuth: true } },
     { path: '/cuenta', name: 'account', component: AccountView },
     { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
   ],
