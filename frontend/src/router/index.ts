@@ -6,7 +6,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import AuthView from '../views/AuthView.vue'
 import AccountView from '../views/AccountView.vue'
 import AdminView from '../views/AdminView.vue'
-import { getAuthToken, getAuthUser } from '../services/authService'
+import { getAuthToken, getAuthUser, getCurrentUser } from '../services/authService'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -26,7 +26,10 @@ export const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !getAuthToken()) return { name: 'login' }
-  if (to.meta.requiresAdmin && getAuthUser()?.role !== 'admin') return { name: 'home' }
+  if (to.meta.requiresAdmin) {
+    const user = getAuthUser() ?? await getCurrentUser()
+    if (user?.role !== 'admin') return { name: 'home' }
+  }
 })

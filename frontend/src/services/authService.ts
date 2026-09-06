@@ -66,6 +66,16 @@ export const saveAuthSession = (response: AuthResponse) => {
   saveAuthToken(response.token)
   localStorage.setItem(userKey, JSON.stringify(response.user))
 }
+export const getCurrentUser = async (): Promise<AuthUser | null> => {
+  const token = getAuthToken()
+  if (!token) return null
+
+  const response = await fetch(`${apiBaseUrl}/auth/me`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+  if (!response.ok) return null
+  const payload = await response.json() as { user: AuthUser }
+  localStorage.setItem(userKey, JSON.stringify(payload.user))
+  return payload.user
+}
 export const getAuthUser = (): AuthUser | null => {
   const value = localStorage.getItem(userKey)
   if (!value) return null

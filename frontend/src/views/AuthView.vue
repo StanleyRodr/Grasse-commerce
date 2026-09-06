@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, LockKeyhole, ShieldCheck } from '@lucide/vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { forgotPassword, login, register, resetPassword, saveAuthSession } from '../services/authService'
 
 const route = useRoute()
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 const name = ref('')
@@ -41,6 +42,7 @@ const submit = async () => {
 
     saveAuthSession(response)
     submitted.value = true
+    await router.push({ name: isLogin.value ? 'account' : 'home' })
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No pudimos completar la solicitud.'
   } finally {

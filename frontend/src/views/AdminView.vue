@@ -1,25 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { BarChart3, CircleDollarSign, ClipboardList, Edit3, Plus, Search, TrendingUp, Users } from '@lucide/vue'
+import { onMounted, ref } from 'vue'
+import { ArrowLeft, BarChart3, ClipboardList, CircleDollarSign, ChevronRight, Package, TrendingUp, Users } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
+import { getAdminOrders, getAdminOverview, updateAdminOrderStatus, type AdminOrder } from '../services/adminService'
 
 const tab = ref('Resumen')
 const tabs = ['Resumen', 'Pedidos', 'Productos']
-const statuses = ['Pendiente', 'En proceso', 'Enviado', 'Entregado', 'Cancelado']
-const orders = ref([
-  { id: 'GR-2026-0018', customer: 'Lucía Martínez', date: 'Hoy, 10:42', total: '$4,250', status: 'Pendiente', items: 'Santal 33 · 50 ml' },
-  { id: 'GR-2026-0012', customer: 'Daniel Ramírez', date: '18 mayo 2026', total: '$3,980', status: 'Enviado', items: 'Another 13 · 50 ml' },
-  { id: 'GR-2026-0007', customer: 'Sofía Morales', date: '02 abril 2026', total: '$3,120', status: 'Entregado', items: 'Gris Charnel · 50 ml' },
-])
-const products = [
-  { name: 'Santal 33', house: 'Le Labo', stock: 68, sold: 128, price: '$4,250' },
-  { name: 'Another 13', house: 'Le Labo', stock: 42, sold: 94, price: '$3,980' },
-  { name: 'Gris Charnel', house: 'BDK Parfums', stock: 18, sold: 76, price: '$3,120' },
-  { name: 'Bal d’Afrique', house: 'Byredo', stock: 55, sold: 211, price: '$4,890' },
-]
-const stockState = (stock: number) => stock > 50 ? 'Alto' : stock > 25 ? 'Medio' : 'Bajo'
+const statuses = [{ value: 'pending', label: 'Pendiente' }, { value: 'processing', label: 'En proceso' }, { value: 'shipped', label: 'Enviado' }, { value: 'delivered', label: 'Entregado' }, { value: 'cancelled', label: 'Cancelado' }]
+const overview = ref({ users: 0, products: 0, orders: 0, sales: 0, averageOrder: 0 })
+const orders = ref<AdminOrder[]>([])
+const errorMessage = ref('')
+const money = (value: number) => `$${value.toLocaleString('es-MX')} MXN`
+const statusLabel = (status: string) => statuses.find((item) => item.value === status)?.label ?? status
+const load = async () => {
+  try {
+    const [summary, orderResponse] = await Promise.all([getAdminOverview(), getAdminOrders()])
+    overview.value = summary.data
+    orders.value = orderResponse.data.data
+  } catch (error) { errorMessage.value = error instanceof Error ? error.message : 'No se pudo cargar el panel.' }
+}
+const changeStatus = async (order: AdminOrder, status: string) => {
+  try { order.status = (await updateAdminOrderStatus(order.id, status)).data.status } catch { errorMessage.value = 'No se pudo actualizar el pedido.' }
+}
+onMounted(load)
 </script>
 
 <template>
-  <div class="admin-page"><header class="admin-header"><RouterLink to="/" class="admin-brand">grasse<span>.</span><small>ADMIN</small></RouterLink><nav><button v-for="item in tabs" :key="item" :class="{ active: tab === item }" @click="tab = item">{{ item }}</button></nav><div class="admin-user"><span>LM</span> Lucía Martínez</div></header><main class="admin-content"><div class="admin-heading"><div><p class="eyebrow">Panel de control</p><h1>{{ tab }}</h1></div><span class="admin-date">18 AGO 2026 · 10:42</span></div><template v-if="tab === 'Resumen'"><div class="admin-stats"><div><CircleDollarSign :size="18" /><span>Ventas totales</span><strong>$486,250 <small>MXN</small></strong><em><TrendingUp :size="13" /> +12.8% este mes</em></div><div><ClipboardList :size="18" /><span>Pedidos totales</span><strong>128</strong><em><TrendingUp :size="13" /> +8.4% este mes</em></div><div><Users :size="18" /><span>Clientes activos</span><strong>342</strong><em><TrendingUp :size="13" /> +16.2% este mes</em></div><div><BarChart3 :size="18" /><span>Ticket promedio</span><strong>$3,798 <small>MXN</small></strong><em>Últimos 30 días</em></div></div><div class="admin-columns"><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Rendimiento</p><h2>Ventas semanales</h2></div><span>Últimos 7 días</span></div><div class="sales-chart"><div v-for="(height, index) in [38, 52, 44, 73, 61, 88, 68]" :key="index" class="chart-column"><i :style="{ height: `${height}%` }"></i><small>{{ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][index] }}</small></div></div></section><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Ranking</p><h2>Más vendidos</h2></div><TrendingUp :size="17" /></div><div class="ranking-row" v-for="(product, index) in products" :key="product.name"><b>0{{ index + 1 }}</b><div><strong>{{ product.name }}</strong><span>{{ product.house }}</span></div><em>{{ product.sold }} vendidos</em></div></section></div></template><template v-else-if="tab === 'Pedidos'"><section class="admin-card admin-table-card"><div class="admin-card-heading"><div><p class="eyebrow">Operación</p><h2>Pedidos recientes</h2></div><label class="admin-search"><Search :size="15" /><input placeholder="Buscar pedido..." /></label></div><div class="admin-order-table"><div class="table-head"><span>Pedido</span><span>Cliente</span><span>Fecha</span><span>Total</span><span>Estado</span></div><div v-for="order in orders" :key="order.id" class="table-row"><div><strong>{{ order.id }}</strong><small>{{ order.items }}</small></div><span>{{ order.customer }}</span><span>{{ order.date }}</span><b>{{ order.total }} MXN</b><select v-model="order.status" :class="order.status.toLowerCase().replace(' ', '-')"><option v-for="status in statuses" :key="status">{{ status }}</option></select></div></div></section></template><template v-else><section class="admin-card admin-table-card"><div class="admin-card-heading"><div><p class="eyebrow">Inventario</p><h2>Catálogo de productos</h2></div><button class="admin-add"><Plus :size="15" /> Nuevo producto</button></div><div class="admin-order-table"><div class="table-head product-head"><span>Producto</span><span>Precio</span><span>Stock</span><span>Vendidos</span><span>Acciones</span></div><div v-for="product in products" :key="product.name" class="table-row product-row"><div><strong>{{ product.name }}</strong><small>{{ product.house }}</small></div><b>{{ product.price }} MXN</b><span class="stock-indicator" :class="stockState(product.stock).toLowerCase()"><i></i>{{ product.stock }} uds. · {{ stockState(product.stock) }}</span><span>{{ product.sold }}</span><button class="edit-product"><Edit3 :size="15" /> Editar</button></div></div></section></template></main></div>
+  <div class="admin-page"><header class="admin-header"><RouterLink to="/" class="admin-brand">grasse<span>.</span><small>ADMIN</small></RouterLink><nav><button v-for="item in tabs" :key="item" :class="{ active: tab === item }" @click="tab = item">{{ item }}</button></nav><RouterLink to="/" class="admin-user"><ArrowLeft :size="14" /> Tienda</RouterLink></header><main class="admin-content"><div class="admin-heading"><div><p class="eyebrow">Panel de control</p><h1>{{ tab }}</h1></div><span class="admin-date">DATOS EN VIVO</span></div><p v-if="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
+    <template v-if="tab === 'Resumen'"><div class="admin-stats"><div><CircleDollarSign :size="18" /><span>Ventas</span><strong>{{ money(overview.sales) }}</strong><em>Total procesado</em></div><div><ClipboardList :size="18" /><span>Pedidos</span><strong>{{ overview.orders }}</strong><em>Registrados</em></div><div><Users :size="18" /><span>Clientes</span><strong>{{ overview.users }}</strong><em>Usuarios</em></div><div><BarChart3 :size="18" /><span>Ticket promedio</span><strong>{{ money(overview.averageOrder) }}</strong><em>Pedidos procesados</em></div></div><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Operación</p><h2>Pedidos recientes</h2></div><button class="text-link" @click="tab = 'Pedidos'">Ver todos <ChevronRight :size="14" /></button></div><div class="order-row" v-for="order in orders.slice(0, 5)" :key="order.id"><div class="order-icon"><Package :size="17" /></div><div class="order-info"><strong>GR-{{ String(order.id).padStart(6, '0') }}</strong><span>{{ order.user.name }} · {{ order.items.length }} artículo(s)</span></div><span class="order-status">{{ statusLabel(order.status) }}</span><b>{{ money(order.total) }}</b></div></section></template>
+    <template v-else-if="tab === 'Pedidos'"><section class="admin-card"><div class="admin-card-heading"><div><p class="eyebrow">Gestión</p><h2>Pedidos reales</h2></div><TrendingUp :size="17" /></div><p v-if="!orders.length">No hay pedidos registrados.</p><div class="order-row" v-for="order in orders" :key="order.id"><div class="order-icon"><Package :size="17" /></div><div class="order-info"><strong>GR-{{ String(order.id).padStart(6, '0') }}</strong><span>{{ order.user.name }} · {{ order.user.email }} · {{ new Date(order.created_at).toLocaleDateString('es-MX') }}</span></div><select :value="order.status" @change="changeStatus(order, ($event.target as HTMLSelectElement).value)"><option v-for="status in statuses" :key="status.value" :value="status.value">{{ status.label }}</option></select><b>{{ money(order.total) }}</b></div></section></template>
+    <template v-else><section class="admin-card"><p class="eyebrow">Catálogo</p><h2>{{ overview.products }} productos registrados</h2><p>CRUD de productos y stock sigue pendiente.</p></section></template>
+  </main></div>
 </template>

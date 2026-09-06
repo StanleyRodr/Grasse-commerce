@@ -51,6 +51,8 @@ Route::post('/payments/stripe/webhook', [PaymentController::class, 'webhook']);
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);
+    Route::get('/orders', [AdminController::class, 'orders']);
+    Route::patch('/orders/{order}/status', [AdminController::class, 'updateOrderStatus']);
 });
 
 Route::get('/user', function (Request $request) {
