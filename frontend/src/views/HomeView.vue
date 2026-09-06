@@ -52,7 +52,7 @@ const loadCatalog = async () => {
    loadError.value = ''
 
    try {
-     const response = await getProducts({ per_page: 100 })
+     const response = await getProducts({ per_page: 24 })
      products.value = response.data
    } catch {
      loadError.value = 'No pudimos cargar la colección. Intenta de nuevo.'

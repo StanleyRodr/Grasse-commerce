@@ -14,7 +14,9 @@ export type ProductQuery = {
 }
 
 const request = async <T>(path: string): Promise<T> => {
-  const response = await fetch(`${apiBaseUrl}${path}`)
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    headers: { Accept: 'application/json' },
+  })
 
   if (!response.ok) {
     throw new Error(`Catalog request failed with status ${response.status}`)
