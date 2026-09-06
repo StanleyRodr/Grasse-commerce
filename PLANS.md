@@ -112,3 +112,4 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-09-06: Productos relacionados ahora cargan desde catálogo API, sin datos hardcodeados.
 - 2026-09-06: Se añadieron pruebas de firma válida e inválida para webhook de Stripe.
 - 2026-09-06: Checkout invitado ahora persiste pedido, dirección, stock y sesión Stripe sin crear usuario falso.
+- 2026-09-06: Dashboard admin ahora gestiona variantes reales, incluyendo alta, stock y eliminación.

@@ -39,7 +39,7 @@ class ProductController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1', 'max:24'],
         ]);
 
-        $query = Product::query();
+        $query = Product::query()->with('variants');
 
         if (!empty($validated['search'])) {
             $search = $validated['search'];
@@ -100,6 +100,7 @@ class ProductController extends Controller
             'description' => $product->description,
             'notes' => $product->notes ?? [],
             'stock' => $product->stock,
+            'variants' => $product->relationLoaded('variants') ? $product->variants->map(fn ($variant) => ['id' => $variant->id, 'label' => $variant->label, 'volumeMl' => $variant->volume_ml, 'price' => $variant->price, 'stock' => $variant->stock])->values() : [],
         ];
     }
 
