@@ -108,4 +108,5 @@
 - [x] Implementar reseñas verificadas para compradores con pedido entregado.
 - [x] Conectar reseñas del detalle de producto con la API Laravel.
 - [x] Conectar checkout autenticado e historial de pedidos con la API Laravel.
+- [x] Conectar gestión de domicilios de cuenta con la API Laravel.
 - [x] Añadir endpoint Stripe Checkout y webhook con validación de firma.

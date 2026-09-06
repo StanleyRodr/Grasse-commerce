@@ -16,6 +16,8 @@ export type AddressInput = { label: string; recipient: string; line1: string; ci
 export type Address = AddressInput & { id: number }
 export const getAddresses = () => request<{ data: Address[] }>('/addresses')
 export const createAddress = (address: AddressInput) => request<{ data: { id: number } }>('/addresses', { method: 'POST', body: JSON.stringify(address) })
+export const setDefaultAddress = (id: number) => request<{ data: Address }>(`/addresses/${id}/default`, { method: 'POST' })
+export const deleteAddress = (id: number) => request<{ message: string }>(`/addresses/${id}`, { method: 'DELETE' })
 export const createOrder = (addressId: number) => request<{ data: { id: number; status: string } }>('/orders', { method: 'POST', body: JSON.stringify({ address_id: addressId }) })
 export const createCheckoutSession = (orderId: number) => request<{ data: { id: string; url: string } }>(`/orders/${orderId}/checkout`, { method: 'POST' })
 export const getOrders = () => request<{ data: { data: Array<{ id: number; status: string; total: number; created_at: string; items: Array<{ product_name: string; quantity: number }> }> } }>('/orders')
