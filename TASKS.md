@@ -120,4 +120,5 @@
 - [x] Conectar edición de perfil y reinicio de verificación al cambiar correo.
 - [x] Conectar historial de reseñas de cuenta con la API.
 - [x] Reemplazar productos relacionados hardcodeados por catálogo API.
+- [x] Implementar checkout invitado con pedido persistido, stock y Stripe.
 - [x] Probar webhook Stripe firmado e inválido para pedido pendiente.

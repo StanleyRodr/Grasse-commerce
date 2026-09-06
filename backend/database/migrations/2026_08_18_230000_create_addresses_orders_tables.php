@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('label', 80);
             $table->string('recipient', 120);
             $table->string('line1', 180);
@@ -25,8 +25,8 @@ return new class extends Migration
 
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('address_id')->constrained()->restrictOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('address_id')->nullable()->constrained()->restrictOnDelete();
             $table->string('status')->default('pending')->index();
             $table->decimal('subtotal', 10, 2);
             $table->decimal('shipping', 10, 2);

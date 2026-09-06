@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\GuestOrderController;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'service' => 'grasse-api']);
@@ -51,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/payments/stripe/webhook', [PaymentController::class, 'webhook']);
+Route::post('/guest/orders', [GuestOrderController::class, 'store']);
+Route::post('/guest/orders/{order}/checkout', [PaymentController::class, 'guestCheckout']);
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);

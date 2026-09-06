@@ -15,6 +15,17 @@ class PaymentController extends Controller
     public function checkout(Request $request, Order $order): JsonResponse
     {
         abort_unless($order->user_id === $request->user()->id, 404);
+        return $this->createSession($order, (string) $request->user()->id);
+    }
+
+    public function guestCheckout(Order $order): JsonResponse
+    {
+        abort_unless($order->user_id === null, 404);
+        return $this->createSession($order, 'guest');
+    }
+
+    private function createSession(Order $order, string $customerId): JsonResponse
+    {
         abort_if($order->status !== 'pending', 422, 'Este pedido ya no puede pagarse.');
 
         $secret = config('services.stripe.secret');
@@ -27,7 +38,7 @@ class PaymentController extends Controller
                     'price_data' => ['currency' => 'mxn', 'product_data' => ['name' => trim($item->product_name . ' ' . ($item->variant_label ?? ''))], 'unit_amount' => (int) round($item->unit_price * 100)],
                     'quantity' => $item->quantity,
                 ])->values()->all(),
-                'metadata' => ['order_id' => (string) $order->id, 'user_id' => (string) $request->user()->id],
+                'metadata' => ['order_id' => (string) $order->id, 'user_id' => $customerId],
                 'success_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=success&order=' . $order->id,
                 'cancel_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=cancelled&order=' . $order->id,
             ]);

@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'address_id', 'status', 'subtotal', 'shipping', 'total'];
-    protected function casts(): array { return ['subtotal' => 'float', 'shipping' => 'float', 'total' => 'float']; }
+    protected $fillable = ['user_id', 'address_id', 'guest_email', 'guest_name', 'guest_address', 'status', 'subtotal', 'shipping', 'total'];
+    protected function casts(): array { return ['subtotal' => 'float', 'shipping' => 'float', 'total' => 'float', 'guest_address' => 'array']; }
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
     public function address(): BelongsTo { return $this->belongsTo(Address::class); }
     public function items(): HasMany { return $this->hasMany(OrderItem::class); }

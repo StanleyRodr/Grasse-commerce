@@ -4,7 +4,7 @@ import { ArrowLeft, Check, LockKeyhole, MapPin, ShoppingBag } from '@lucide/vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { getAuthToken } from '../services/authService'
-import { createAddress, createCheckoutSession, createOrder } from '../services/commerceService'
+import { createAddress, createCheckoutSession, createGuestCheckoutSession, createGuestOrder, createOrder } from '../services/commerceService'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -27,12 +27,14 @@ const placeOrder = async () => {
   if (!canSubmit.value) return
   errorMessage.value = ''
 
-  if (!getAuthToken()) {
-    submitted.value = true
-    return
-  }
-
   try {
+   if (!getAuthToken()) {
+    const guestOrder = await createGuestOrder({ email: email.value, name: `${firstName.value} ${lastName.value}`, address: address.value, city: city.value, state: state.value, postal_code: postalCode.value, items: cart.items.map((item) => ({ product_id: item.id, variant_id: item.variantId, quantity: 1 })) })
+    orderNumber.value = `ORDEN #GR-${String(guestOrder.data.id).padStart(6, '0')}`
+    const checkout = await createGuestCheckoutSession(guestOrder.data.id)
+    window.location.assign(checkout.data.url)
+    return
+   }
     await cart.syncRemote()
     const savedAddress = await createAddress({ label: 'Envío', recipient: `${firstName.value} ${lastName.value}`, line1: address.value, city: city.value, state: state.value, postal_code: postalCode.value, is_default: true })
     const order = await createOrder(savedAddress.data.id)

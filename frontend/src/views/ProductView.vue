@@ -33,7 +33,7 @@ const sizes = computed(() => [
   ]),
 ])
 const currentPrice = computed(() => sizes.value.find((size) => size.label === selectedSize.value)?.price ?? product.value.price)
-const reviews = ref<Array<{ name: string; date: string; rating: number; text: string; verified: boolean }>>([])
+const reviews = ref<Array<{ id: number; name: string; date: string; rating: number; text: string; verified: boolean }>>([])
 const relatedProducts = ref<Product[]>([])
 
 onMounted(async () => {
@@ -41,7 +41,7 @@ onMounted(async () => {
     product.value = (await getProductById(Number(route.params.id))).data
     relatedProducts.value = (await getProducts({ per_page: 6 })).data.filter((item) => item.id !== product.value.id).slice(0, 2)
     const response = await getReviews(product.value.id)
-    reviews.value = response.data.data.map((review) => ({ name: review.user.name, date: new Date(review.created_at).toLocaleDateString('es-MX'), rating: review.rating, text: review.comment, verified: review.verified_purchase }))
+    reviews.value = response.data.data.map((review) => ({ id: review.id, name: review.user.name, date: new Date(review.created_at).toLocaleDateString('es-MX'), rating: review.rating, text: review.comment, verified: review.verified_purchase }))
   } catch {
     loadError.value = 'No pudimos cargar este producto.'
   }

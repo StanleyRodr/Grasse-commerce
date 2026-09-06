@@ -20,4 +20,6 @@ export const setDefaultAddress = (id: number) => request<{ data: Address }>(`/ad
 export const deleteAddress = (id: number) => request<{ message: string }>(`/addresses/${id}`, { method: 'DELETE' })
 export const createOrder = (addressId: number) => request<{ data: { id: number; status: string } }>('/orders', { method: 'POST', body: JSON.stringify({ address_id: addressId }) })
 export const createCheckoutSession = (orderId: number) => request<{ data: { id: string; url: string } }>(`/orders/${orderId}/checkout`, { method: 'POST' })
+export const createGuestOrder = (payload: { email: string; name: string; address: string; city: string; state: string; postal_code: string; items: Array<{ product_id: number; variant_id?: number; quantity: number }> }) => request<{ data: { id: number; status: string; total: number } }>('/guest/orders', { method: 'POST', body: JSON.stringify(payload) })
+export const createGuestCheckoutSession = (orderId: number) => request<{ data: { id: string; url: string } }>(`/guest/orders/${orderId}/checkout`, { method: 'POST' })
 export const getOrders = () => request<{ data: { data: Array<{ id: number; status: string; total: number; created_at: string; items: Array<{ product_name: string; quantity: number }> }> } }>('/orders')

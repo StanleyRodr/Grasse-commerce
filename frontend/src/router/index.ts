@@ -22,7 +22,7 @@ export const router = createRouter({
     { path: '/recuperar-contrasena', name: 'forgot-password', component: AuthView },
     { path: '/restablecer-contrasena', name: 'reset-password', component: AuthView },
     { path: '/verificar-correo', name: 'verify-email', component: VerifyEmailView, meta: { requiresAuth: true } },
-    { path: '/cuenta', name: 'account', component: AccountView },
+    { path: '/cuenta', name: 'account', component: AccountView, meta: { requiresAuth: true } },
     { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
   ],
   scrollBehavior: () => ({ top: 0 }),

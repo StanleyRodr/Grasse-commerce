@@ -78,4 +78,22 @@ class OrderAddressApiTest extends TestCase
         $this->assertDatabaseHas('products', ['id' => $product->id, 'stock' => 1]);
         $this->assertDatabaseCount('orders', 0);
     }
+
+    public function test_guest_can_create_order_without_account(): void
+    {
+        $product = Product::factory()->create(['price' => 900, 'stock' => 4]);
+
+        $response = $this->postJson('/api/guest/orders', [
+            'email' => 'guest@example.com',
+            'name' => 'Cliente Invitado',
+            'address' => 'Calle 1',
+            'city' => 'CDMX',
+            'state' => 'CDMX',
+            'postal_code' => '06600',
+            'items' => [['product_id' => $product->id, 'quantity' => 2]],
+        ])->assertCreated()->assertJsonPath('data.status', 'pending');
+
+        $this->assertDatabaseHas('orders', ['id' => $response->json('data.id'), 'user_id' => null, 'guest_email' => 'guest@example.com']);
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock' => 2]);
+    }
 }
