@@ -72,6 +72,20 @@ export const logout = async () => {
   }
 }
 
+export const updateProfile = async (name: string, email: string) => {
+  const token = getAuthToken()
+  if (!token) throw new Error('Sesión no disponible.')
+  const response = await fetch(`${apiBaseUrl}/auth/profile`, {
+    method: 'PATCH',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name, email }),
+  })
+  const payload = await response.json() as { user?: AuthUser; message?: string }
+  if (!response.ok || !payload.user) throw new Error(payload.message ?? 'No pudimos actualizar tu perfil.')
+  localStorage.setItem(userKey, JSON.stringify(payload.user))
+  return payload.user
+}
+
 export const saveAuthToken = (token: string) => localStorage.setItem(tokenKey, token)
 export const getAuthToken = () => localStorage.getItem(tokenKey)
 export const saveAuthSession = (response: AuthResponse) => {

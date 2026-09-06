@@ -117,3 +117,4 @@
 - [x] Añadir pantalla de verificación de correo con reenvío autenticado.
 - [x] Conectar la wishlist de la cuenta con el servicio persistido.
 - [x] Validar stock y descontarlo al crear pedidos.
+- [x] Conectar edición de perfil y reinicio de verificación al cambiar correo.

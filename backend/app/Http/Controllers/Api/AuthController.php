@@ -56,6 +56,22 @@ class AuthController extends Controller
         return response()->json(['message' => 'Sesión cerrada correctamente.']);
     }
 
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email,' . $user->id],
+        ]);
+        $emailChanged = $validated['email'] !== $user->email;
+        $user->fill($validated);
+        if ($emailChanged) $user->email_verified_at = null;
+        $user->save();
+        if ($emailChanged) $user->sendEmailVerificationNotification();
+
+        return response()->json(['user' => $user->only(['id', 'name', 'email', 'email_verified_at', 'role'])]);
+    }
+
     public function sendVerificationNotification(Request $request): JsonResponse
     {
         if ($request->user()->hasVerifiedEmail()) {

@@ -109,6 +109,20 @@ class AuthApiTest extends TestCase
             ->assertJsonValidationErrors('email');
     }
 
+    public function test_user_can_update_profile_and_email_change_requires_verification(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create(['email' => 'old@example.com', 'email_verified_at' => now()]);
+
+        $this->actingAs($user, 'sanctum')->patchJson('/api/auth/profile', [
+            'name' => 'Nuevo Nombre',
+            'email' => 'new@example.com',
+        ])->assertOk()->assertJsonPath('user.email', 'new@example.com');
+
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Nuevo Nombre', 'email' => 'new@example.com', 'email_verified_at' => null]);
+        Notification::assertSentTo($user->fresh(), VerifyEmail::class);
+    }
+
     public function test_logout_revokes_the_current_token(): void
     {
         $user = User::factory()->create();
