@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\PaymentController;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'service' => 'grasse-api']);
@@ -41,8 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::post('/orders/{order}/checkout', [PaymentController::class, 'checkout']);
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store']);
 });
+
+Route::post('/payments/stripe/webhook', [PaymentController::class, 'webhook']);
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);

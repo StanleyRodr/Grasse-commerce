@@ -100,3 +100,4 @@ Grasse será un e-commerce de perfumes para México, en español y con precios e
 - 2026-08-18: Se añadieron reseñas verificadas, limitadas a productos de pedidos entregados.
 - 2026-08-18: Se conectó la lectura y publicación de reseñas del detalle con servicios HTTP del frontend.
 - 2026-08-18: Se conectaron checkout autenticado e historial de pedidos con domicilios y pedidos Laravel.
+- 2026-08-18: Se integró Stripe Checkout y se añadió webhook con validación de firma.

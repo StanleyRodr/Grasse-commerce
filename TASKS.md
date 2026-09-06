@@ -53,7 +53,7 @@
 - [x] Implementar recuperación de contraseña y envío de correos.
 - [x] Implementar modelos, migraciones y endpoints del catálogo.
 - [ ] Implementar carrito, wishlist, domicilios, pedidos y reseñas.
-- [ ] Integrar Stripe Checkout en modo prueba.
+- [x] Integrar Stripe Checkout en modo prueba.
 - [ ] Implementar y validar webhooks de Stripe.
 - [ ] Conectar el frontend con la API real.
 
@@ -108,3 +108,4 @@
 - [x] Implementar reseñas verificadas para compradores con pedido entregado.
 - [x] Conectar reseñas del detalle de producto con la API Laravel.
 - [x] Conectar checkout autenticado e historial de pedidos con la API Laravel.
+- [x] Añadir endpoint Stripe Checkout y webhook con validación de firma.

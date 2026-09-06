@@ -4,7 +4,7 @@ import { ArrowLeft, Check, LockKeyhole, MapPin, ShoppingBag } from '@lucide/vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { getAuthToken } from '../services/authService'
-import { createAddress, createOrder } from '../services/commerceService'
+import { createAddress, createCheckoutSession, createOrder } from '../services/commerceService'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -36,6 +36,8 @@ const placeOrder = async () => {
     const savedAddress = await createAddress({ label: 'Envío', recipient: `${firstName.value} ${lastName.value}`, line1: address.value, city: city.value, state: state.value, postal_code: postalCode.value, is_default: true })
     const order = await createOrder(savedAddress.data.id)
     orderNumber.value = `ORDEN #GR-${String(order.data.id).padStart(6, '0')}`
+    const checkout = await createCheckoutSession(order.data.id)
+    window.location.assign(checkout.data.url)
     submitted.value = true
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No pudimos crear tu pedido.'
